@@ -1,0 +1,162 @@
+{
+  プレイヤー
+}
+
+const width : float :: 100.0
+const height : float :: 160.0
+const renderOffsetX : float :: -(@width / 2.0)
+const renderOffsetY : float :: -@height
+var hitRect : Main@Rect
+
+var position : Main@Position
+var jumpVelocity : float
+
+{ 範囲補正 }
+func Correct(n : &float, min : float, max : float) : bool
+  if (n < min)
+    do n :: min
+    return true
+  elif (n > max)
+    do n :: max - 1.0
+    return true
+  end if
+  return false
+end func
+
+func CorrectInt(n : &int, min : int, max : int) : bool
+  if (n < min)
+    do n :: min
+    return true
+  elif (n >= max)
+    do n :: max - 1
+    return true
+  end if
+  return false
+end func
+
+{ 初期化 }
+func InitPlayer(x : float, y : float)
+  do @position :: #Main@Position
+  do @position.x :: x
+  do @position.y :: y
+  do @jumpVelocity :: 0.0
+  do @hitRect :: Main@MakeRect( -(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
+  do Dbg@Log("hitRect :: " ~ @hitRect.ToStr())
+end func
+
+func GetHitLeft() : int
+  var n : int :: ((@position.x + @hitRect.left) / Map@blockW) $ int
+  do @CorrectInt(&n, 0, Map@width)
+  return n
+end func
+
+func GetHitTop(offset : float) : int
+  var n : int :: ((@position.y + @hitRect.top + offset ) / Map@blockH) $ int
+  do @CorrectInt(&n, 0, Map@height)
+  return n
+end func
+
+func GetHitRight() : int
+  var n : int :: ((@position.x + @hitRect.right) / Map@blockW) $ int
+  do @CorrectInt(&n, 0, Map@width)
+  return n
+end func
+
+func GetHitBottom(offset : float) : int
+  var n : int :: ((@position.y + @hitRect.bottom + offset) / Map@blockH) $ int
+  do @CorrectInt(&n, 0, Map@height)
+  return n
+end func
+
+{ 操作 }
+func Action()
+  { 左右移動 }
+  const runVelocity : float :: 16.0
+  if (Input@Pad(0, Input@EBtn#Left) > 0)
+    do @position.x :- runVelocity
+    var x : int :: @GetHitLeft()
+    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    for y(range.first, range.last)
+      if (Map@data[y][x] = 'X')
+        do @position.x :: (x + 1) $ float * Map@blockW - @hitRect.left
+        break y
+      end if
+    end for
+  end if
+  if (Input@Pad(0, Input@EBtn#Right) > 0)
+    do @position.x :+ runVelocity
+    var x : int :: @GetHitRight()
+    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    try
+    for y(range.first, range.last)
+      if (Map@data[y][x] = 'X')
+        do @position.x :: x $ float * Map@blockW - @hitRect.right - 1.0
+        break y
+      end if
+    end for
+    catch()
+      do Dbg@Log("x:" ~ x.ToStr() ~ " range:" ~ range.ToStr())
+    end try
+  end if
+  const leftLimit : float :: @width / 2.0
+  const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
+  do @Correct(&@position.x, leftLimit, rightLimit)
+
+  { ジャンプ }
+  var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
+  if (Input@Pad(0, Input@EBtn#B) = 1)
+    do @jumpVelocity :: jumpPower
+  end if
+  do @position.y :+ @jumpVelocity
+  const topLimit : float :: -@height
+  const bottomLimit : float :: Map@height $ float * Map@blockH + @height - 10.0
+
+  { 重力制御 }
+  if (@Correct(&@position.y, topLimit, bottomLimit))
+    do @jumpVelocity :: 0.0
+  else
+    do @jumpVelocity :+ Main@gravity
+  end if
+
+  do @CorrectForMap()
+end func
+
+{ 背景当たり判定 }
+func CorrectForMap()
+  var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitLeft(), @GetHitRight())
+  if (@jumpVelocity < 0.0)
+    var y : int :: @GetHitTop(0.0)
+    try
+    for x(range.first, range.last)
+      if (Map@data[y][x] = 'X')
+        do @position.y :: (y + 1) $ float * Map@blockH + @height
+        do @jumpVelocity :: 0.0
+        break x
+      end if
+    end for
+    catch()
+      do Dbg@Log("up error:" ~ range.ToStr())
+    end try
+  end if
+  if (@jumpVelocity >= 0.0)
+    var y : int :: @GetHitBottom(0.0)
+    try
+    for x(range.first, range.last)
+      if (Map@data[y][x] = 'X')
+        do @position.y :: y $ float * Map@blockH
+        do @jumpVelocity :: 0.0
+        break x
+      end if
+    end for
+    catch()
+      do Dbg@Log("down error:" ~ range.ToStr())
+    end try
+  end if
+end func
+
+{ 描画 }
+func Draw(camera : Main@Position)
+  var x : float :: @position.x + @renderOffsetX - camera.x
+  var y : float :: @position.y + @renderOffsetY - camera.y
+  do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
+end func

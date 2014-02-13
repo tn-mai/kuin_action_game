@@ -1,0 +1,49 @@
+{
+  マップデータ
+}
+
+const viewW : float :: 1600.0
+const viewH : float :: 900.0
+const blockW : float :: 100.0
+const blockH : float :: 100.0
+const width : int :: 16 * 2
+const height : int :: 9
+
+var data : [][]char
+
+func InitMap()
+  do @data :: #[@height][]char
+  do @data[0] :: "................"~"................"
+  do @data[1] :: "................"~"..........XX...."
+  do @data[2] :: ".......XX......."~"....XXXX..XXXXXX"
+  do @data[3] :: "..........XXX..."~"....XXXX........"
+  do @data[4] :: ".............XXX"~"..XXX...X......."
+  do @data[5] :: "................"~"....X...XXXX...."
+  do @data[6] :: "........XX...XXX"~"XXXXXXX........."
+  do @data[7] :: "....XX..XXXX...."~"....X.........XX"
+  do @data[8] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
+end func
+
+func DrawMap(camera : Main@Position)
+  var rangeL : int :: ((camera.x / @blockW) $ int) - 1
+  if (rangeL < 0)
+    do rangeL :: 0
+  end if
+  var rangeR : int :: rangeL + 17
+  if (rangeR > @width - 1)
+    do rangeR :: @width - 1
+  end if
+{
+  do Dbg@Log("rangeL" ~ rangeL.ToStr())
+  do Dbg@Log("rangeR" ~ rangeR.ToStr())
+}
+  for x(rangeL, rangeR)
+    for y(0, @height - 1)
+      if (@data[y][x] = 'X')
+        var left : float :: (x $ float) * @blockW - camera.x
+        var top : float :: (y $ float) * @blockH - camera.y
+        do Draw@Rect(left, top, @blockW, @blockH, 1.0, 1.0, 1.0, 1.0)
+      end if
+    end for
+  end for
+end func

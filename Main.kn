@@ -1,0 +1,189 @@
+{
+  Kuin game
+}
+
+const gravity : float :: 9.8 * 10.0 / 60.0
+
+{ 二次元座標 }
+class Position()
+  var x : float
+  var y : float
+  func ToStr() : []char
+    return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
+  end func
+end class
+
+func MakePosition(x : float, y : float) : @Position
+  var pos : @Position :: #@Position
+  do pos.x :: x
+  do pos.y :: y
+  return pos
+end func
+
+{ 二次元範囲 }
+class Rect()
+  var left : float
+  var top : float
+  var right : float
+  var bottom : float
+  func ToStr() : []char
+    return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
+  end func
+end class
+
+func MakeRect(left : float, top : float, right : float, bottom : float) : @Rect
+  var rect : @Rect :: #@Rect
+  do rect.left :: left
+  do rect.top :: top
+  do rect.right :: right
+  do rect.bottom :: bottom
+  return rect
+end func
+
+{ 一次元範囲 }
+class RangeInt()
+  var first : int
+  var last : int
+  func ToStr() : []char
+    return "(" ~ this.first.ToStr() ~ "," ~ this.last.ToStr() ~ ")"
+  end func
+end class
+
+func MakeRangeInt(first : int, last : int) : @RangeInt
+  var range : @RangeInt :: #@RangeInt
+  do range.first :: first
+  do range.last :: last
+  return range
+end func
+
+{
+  ゲーム結果
+}
+enum Result
+  GameOver  { ゲームオーバーになった }
+  Ending    { エンディングになった }
+end enum
+
+{
+  ゲーム状態
+}
+class Status()
+  var result: @Result
+  func Init()
+    do this.result :: @Result#GameOver
+  end func
+end class
+
+{
+  リソース
+}
+class Resource()
+  func Init()
+    do @font :: Draw@LoadFont("ume-ugo5.ttf")
+  end func
+  func Font() : Draw@CFont
+    return @font
+  end func
+end class
+var font : Draw@CFont
+
+{
+ エントリポイント
+}
+func Main()
+  var status : @Status :: #@Status
+  do status.Init()
+  var resource : @Resource :: #@Resource
+  do resource.Init()
+
+  while ()
+    do @Title(resource, status)
+    switch (@Game(resource, status))
+    case (@Result#Ending)
+      do @Ending(resource, status)
+    default
+      do @GameOver(resource, status)
+    end switch
+  end while
+end func 
+
+{ 簡易フォント描画 }
+func DrawText(resource : @Resource, text : []char, size : int, x : int, y : int)
+  var texture : Draw@CTex :: resource.Font().MakeTex(size, text, 16)
+  do texture.Draw(x $ float, y $ float, texture.Width(), texture.Height(), 0.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+end func
+
+{ キー解除待ち }
+func WaitForKeyReleased()
+  while (Input@Pad(0, Input@EBtn#A) > 0)
+    do Kuin@Act()
+  end while
+end func
+
+{
+  タイトル画面
+}
+func Title(resource : @Resource, status : @Status)
+  do @WaitForKeyReleased()
+  while (Input@Pad(0, Input@EBtn#A) = 0)
+    do @DrawText(resource, "NINJA TITLE", 100, 0, 0)
+    do Kuin@Act()
+  end while
+end func
+
+{
+  ゲーム
+}
+func Game(resource : @Resource, status : @Status) : @Result
+  do @WaitForKeyReleased()
+
+  var camera : @Position :: @MakePosition(0.0, 0.0)
+  do Player@InitPlayer(400.0, 800.0)
+  do Map@InitMap()
+
+  while (Input@Pad(0, Input@EBtn#A) = 0)
+    do Player@Action()
+    const cameraForrowingRangeL : float :: Map@viewW / 4.0
+    if (Player@position.x < camera.x + cameraForrowingRangeL)
+      do camera.x :: Player@position.x - cameraForrowingRangeL
+    end if
+    if (camera.x < 0.0)
+      do camera.x :: 0.0
+    end if
+    const cameraForrowingRangeR : float :: Map@viewW * 3.0 / 4.0
+    if (Player@position.x >= camera.x + cameraForrowingRangeR)
+      do camera.x :: Player@position.x - cameraForrowingRangeR  
+    end if
+    const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
+    if (camera.x > rightLimit)
+      do camera.x :: rightLimit
+    end if
+    do Map@DrawMap(camera)
+    do Player@Draw(camera)
+    do Kuin@Act()
+  end while
+  return @Result#GameOver
+end func
+
+{
+  ゲームオーバー
+}
+func GameOver(resource : @Resource, status : @Status)
+  do @WaitForKeyReleased()
+  while (Input@Pad(0, Input@EBtn#A) = 0)
+    do @DrawText(resource, "GAME OVER", 100, 0, 0)
+    do Kuin@Act()
+  end while
+end func
+
+{
+  ゲームクリア→エンディング
+}
+func Ending(resource : @Resource, status : @Status)
+  do @WaitForKeyReleased()
+  while (Input@Pad(0, Input@EBtn#A) = 0)
+    do @DrawText(resource, "Ending", 100, 0, 0)
+    do Kuin@Act()
+  end while
+end func
+
