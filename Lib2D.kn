@@ -1,0 +1,56 @@
+{
+  2Dライブラリ
+}
+
+{ 一次元範囲 }
+class RangeInt()
+  var first : int
+  var last : int
+  func ToStr() : []char
+    return "(" ~ this.first.ToStr() ~ "," ~ this.last.ToStr() ~ ")"
+  end func
+end class
+
+func MakeRangeInt(first : int, last : int) : @RangeInt
+  var range : @RangeInt :: #@RangeInt
+  do range.first :: first
+  do range.last :: last
+  return range
+end func
+
+{ 二次元座標 }
+class Position()
+  var x : float
+  var y : float
+  func ToStr() : []char
+    return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
+  end func
+end class
+
+func MakePosition(x : float, y : float) : @Position
+  var pos : @Position :: #@Position
+  do pos.x :: x
+  do pos.y :: y
+  return pos
+end func
+
+{ 二次元矩形範囲 }
+class Rect()
+  var left : float
+  var top : float
+  var right : float
+  var bottom : float
+  func ToStr() : []char
+    return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
+  end func
+end class
+
+func MakeRect(left : float, top : float, right : float, bottom : float) : @Rect
+  var rect : @Rect :: #@Rect
+  do rect.left :: left
+  do rect.top :: top
+  do rect.right :: right
+  do rect.bottom :: bottom
+  return rect
+end func
+
