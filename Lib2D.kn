@@ -2,6 +2,9 @@
   2Dƒ‰ƒCƒuƒ‰ƒŠ
 }
 
+{ d—Í’è” }
+const gravity : float :: 9.8 * 10.0 / 60.0
+
 { ˆêŸŒ³”ÍˆÍ }
 class RangeInt()
   var first : int

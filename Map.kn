@@ -24,7 +24,7 @@ func InitMap()
   do @data[8] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
 end func
 
-func DrawMap(camera : Main@Position)
+func DrawMap(camera : Lib2D@Position)
   var rangeL : int :: ((camera.x / @blockW) $ int) - 1
   if (rangeL < 0)
     do rangeL :: 0

@@ -6,9 +6,9 @@ const width : float :: 100.0
 const height : float :: 160.0
 const renderOffsetX : float :: -(@width / 2.0)
 const renderOffsetY : float :: -@height
-var hitRect : Main@Rect
+var hitRect : Lib2D@Rect
 
-var position : Main@Position
+var position : Lib2D@Position
 var jumpVelocity : float
 
 { 範囲補正 }
@@ -36,11 +36,11 @@ end func
 
 { 初期化 }
 func InitPlayer(x : float, y : float)
-  do @position :: #Main@Position
+  do @position :: #Lib2D@Position
   do @position.x :: x
   do @position.y :: y
   do @jumpVelocity :: 0.0
-  do @hitRect :: Main@MakeRect( -(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
+  do @hitRect :: Lib2D@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
   do Dbg@Log("hitRect :: " ~ @hitRect.ToStr())
 end func
 
@@ -75,7 +75,7 @@ func Action()
   if (Input@Pad(0, Input@EBtn#Left) > 0)
     do @position.x :- runVelocity
     var x : int :: @GetHitLeft()
-    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    var range : Lib2D@RangeInt :: Lib2D@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
     for y(range.first, range.last)
       if (Map@data[y][x] = 'X')
         do @position.x :: (x + 1) $ float * Map@blockW - @hitRect.left
@@ -86,7 +86,7 @@ func Action()
   if (Input@Pad(0, Input@EBtn#Right) > 0)
     do @position.x :+ runVelocity
     var x : int :: @GetHitRight()
-    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    var range : Lib2D@RangeInt :: Lib2D@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
     try
     for y(range.first, range.last)
       if (Map@data[y][x] = 'X')
@@ -103,7 +103,7 @@ func Action()
   do @Correct(&@position.x, leftLimit, rightLimit)
 
   { ジャンプ }
-  var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
+  var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Lib2D@gravity)
   if (Input@Pad(0, Input@EBtn#B) = 1)
     do @jumpVelocity :: jumpPower
   end if
@@ -115,7 +115,7 @@ func Action()
   if (@Correct(&@position.y, topLimit, bottomLimit))
     do @jumpVelocity :: 0.0
   else
-    do @jumpVelocity :+ Main@gravity
+    do @jumpVelocity :+ Lib2D@gravity
   end if
 
   do @CorrectForMap()
@@ -123,7 +123,7 @@ end func
 
 { 背景当たり判定 }
 func CorrectForMap()
-  var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitLeft(), @GetHitRight())
+  var range : Lib2D@RangeInt :: Lib2D@MakeRangeInt(@GetHitLeft(), @GetHitRight())
   if (@jumpVelocity < 0.0)
     var y : int :: @GetHitTop(0.0)
     try
@@ -155,7 +155,7 @@ func CorrectForMap()
 end func
 
 { 描画 }
-func Draw(camera : Main@Position)
+func Draw(camera : Lib2D@Position)
   var x : float :: @position.x + @renderOffsetX - camera.x
   var y : float :: @position.y + @renderOffsetY - camera.y
   do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
