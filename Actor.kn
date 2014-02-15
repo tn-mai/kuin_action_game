@@ -1,0 +1,55 @@
+{
+  動的物体
+}
+
+{ 範囲補正 }
+-func CorrectInt(n : &int, min : int, max : int) : bool
+  if (n < min)
+    do n :: min
+    return true
+  elif (n >= max)
+    do n :: max - 1
+    return true
+  end if
+  return false
+end func
+
+{ 動く物体の基本クラス }
+class Actor()
+  var position : Main@Position
+  var rect : Main@Rect
+  var jumpVelocity : float
+
+  func GetHitLeft(width : int, blockSize : float) : int
+    var n : int :: ((this.position.x + this.rect.left) / Map@blockW) $ int
+    do @CorrectInt(&n, 0, Map@width)
+    return n
+  end func
+  
+  func GetHitTop(height : int, blockSize : float, offset : float) : int
+    var n : int :: ((this.position.y + this.rect.top + offset ) / Map@blockH) $ int
+    do @CorrectInt(&n, 0, Map@height)
+    return n
+  end func
+  
+  func GetHitRight(width : int, blockSize : float) : int
+    var n : int :: ((this.position.x + this.rect.right) / Map@blockW) $ int
+    do @CorrectInt(&n, 0, Map@width)
+    return n
+  end func
+  
+  func GetHitBottom(height : int, blockSize : float, offset : float) : int
+    var n : int :: ((this.position.y + this.rect.bottom + offset) / Map@blockH) $ int
+    do @CorrectInt(&n, 0, Map@height)
+    return n
+  end func
+end class
+
+func Create(position : Main@Position, rect : Main@Rect) : @Actor
+  var actor : @Actor :: #@Actor
+  do actor.position :: position
+  do actor.rect :: rect
+  do actor.jumpVelocity :: 0.0
+  return actor
+end func
+

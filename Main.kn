@@ -145,15 +145,15 @@ func Game(resource : @Resource, status : @Status) : @Result
   while (Input@Pad(0, Input@EBtn#A) = 0)
     do Player@Action()
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
-    if (Player@position.x < camera.x + cameraForrowingRangeL)
-      do camera.x :: Player@position.x - cameraForrowingRangeL
+    if (Player@player.position.x < camera.x + cameraForrowingRangeL)
+      do camera.x :: Player@player.position.x - cameraForrowingRangeL
     end if
     if (camera.x < 0.0)
       do camera.x :: 0.0
     end if
     const cameraForrowingRangeR : float :: Map@viewW * 3.0 / 4.0
-    if (Player@position.x >= camera.x + cameraForrowingRangeR)
-      do camera.x :: Player@position.x - cameraForrowingRangeR  
+    if (Player@player.position.x >= camera.x + cameraForrowingRangeR)
+      do camera.x :: Player@player.position.x - cameraForrowingRangeR  
     end if
     const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
     if (camera.x > rightLimit)
