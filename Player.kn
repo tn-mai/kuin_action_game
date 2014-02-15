@@ -72,17 +72,17 @@ func Action(actor : Actor@Actor)
   { ジャンプ }
   var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
   if (Input@Pad(0, Input@EBtn#B) = 1)
-    do actor.jumpVelocity :: jumpPower
+    do actor.velocity.y :: jumpPower
   end if
-  do actor.position.y :+ actor.jumpVelocity
+  do actor.position.y :+ actor.velocity.y
   const topLimit : float :: -@height
   const bottomLimit : float :: Map@height $ float * Map@blockH + @height - 10.0
 
   { 重力制御 }
   if (@Correct(&actor.position.y, topLimit, bottomLimit))
-    do actor.jumpVelocity :: 0.0
+    do actor.velocity.y  :: 0.0
   else
-    do actor.jumpVelocity :+ Main@gravity
+    do actor.velocity.y  :+ Main@gravity
   end if
 
   do @CorrectForMap(actor)
@@ -91,13 +91,13 @@ end func
 { 背景当たり判定 }
 func CorrectForMap(actor : Actor@Actor)
   var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitLeft(Map@width, Map@blockW), actor.GetHitRight(Map@width, Map@blockW))
-  if (actor.jumpVelocity < 0.0)
+  if (actor.velocity.y < 0.0)
     var y : int :: actor.GetHitTop(Map@height, Map@blockH, 0.0)
     try
     for x(range.first, range.last)
       if (Map@data[y][x] = 'X')
         do actor.position.y :: (y + 1) $ float * Map@blockH + @height
-        do actor.jumpVelocity :: 0.0
+        do actor.velocity.y :: 0.0
         break x
       end if
     end for
@@ -105,13 +105,13 @@ func CorrectForMap(actor : Actor@Actor)
       do Dbg@Log("up error:" ~ range.ToStr())
     end try
   end if
-  if (actor.jumpVelocity >= 0.0)
+  if (actor.velocity.y >= 0.0)
     var y : int :: actor.GetHitBottom(Map@height, Map@blockH, 0.0)
     try
     for x(range.first, range.last)
       if (Map@data[y][x] = 'X')
         do actor.position.y :: y $ float * Map@blockH
-        do actor.jumpVelocity :: 0.0
+        do actor.velocity.y :: 0.0
         break x
       end if
     end for

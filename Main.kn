@@ -28,6 +28,16 @@ class Position()
   func ToStr() : []char
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
   end func
+  { 加算 }
+  func Add(v : @Vector2)
+    do this.x :+ v.x
+    do this.y :+ v.y
+  end func
+  { 減算 }
+  func Sub(v : @Vector2)
+    do this.x :- v.x
+    do this.y :- v.y
+  end func
 end class
 
 func MakePosition(x : float, y : float) : @Position
@@ -35,6 +45,32 @@ func MakePosition(x : float, y : float) : @Position
   do pos.x :: x
   do pos.y :: y
   return pos
+end func
+
+class Vector2()
+  var x : float
+  var y : float
+  { 文字列変換 }
+  func Tostr() : []char
+    return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
+  end func
+  { 加算 }
+  func Add(v : @Vector2)
+    do this.x :+ v.x
+    do this.y :+ v.y
+  end func
+  { 減算 }
+  func Sub(v : @Vector2)
+    do this.x :- v.x
+    do this.y :- v.y
+  end func
+end class
+
+func MakeVector2(x : float, y : float) : @Vector2
+  var v : @Vector2 :: #@Vector2
+  do v.x :: x
+  do v.y :: y
+  return v
 end func
 
 { 二次元矩形範囲 }
