@@ -7,8 +7,6 @@ const height : float :: 160.0
 const renderOffsetX : float :: -(@width / 2.0)
 const renderOffsetY : float :: -@height
 
-var player : Actor@Actor
-
 { 範囲補正 }
 func Correct(n : &float, min : float, max : float) : bool
   if (n < min)
@@ -33,58 +31,33 @@ func CorrectInt(n : &int, min : int, max : int) : bool
 end func
 
 { 初期化 }
-func InitPlayer(x : float, y : float)
-  do @player :: Actor@Create(Main@MakePosition(x, y), Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0))
-  do @player.jumpVelocity :: 0.0
-end func
-
-func GetHitLeft() : int
-  var n : int :: ((@player.position.x + @player.rect.left) / Map@blockW) $ int
-  do @CorrectInt(&n, 0, Map@width)
-  return n
-end func
-
-func GetHitTop(offset : float) : int
-  var n : int :: ((@player.position.y + @player.rect.top + offset ) / Map@blockH) $ int
-  do @CorrectInt(&n, 0, Map@height)
-  return n
-end func
-
-func GetHitRight() : int
-  var n : int :: ((@player.position.x + @player.rect.right) / Map@blockW) $ int
-  do @CorrectInt(&n, 0, Map@width)
-  return n
-end func
-
-func GetHitBottom(offset : float) : int
-  var n : int :: ((@player.position.y + @player.rect.bottom + offset) / Map@blockH) $ int
-  do @CorrectInt(&n, 0, Map@height)
-  return n
+func Create(x : float, y : float) : Actor@Actor
+  return Actor@Create(Main@MakePosition(x, y), Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0))
 end func
 
 { 操作 }
-func Action()
+func Action(actor : Actor@Actor)
   { 左右移動 }
   const runVelocity : float :: 16.0
   if (Input@Pad(0, Input@EBtn#Left) > 0)
-    do @player.position.x :- runVelocity
-    var x : int :: @GetHitLeft()
-    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    do actor.position.x :- runVelocity
+    var x : int :: actor.GetHitLeft(Map@width, Map@blockW)
+    var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitTop(Map@height, Map@blockH, 60.0), actor.GetHitBottom(Map@height, Map@blockH, -10.0))
     for y(range.first, range.last)
       if (Map@data[y][x] = 'X')
-        do @player.position.x :: (x + 1) $ float * Map@blockW - @player.rect.left
+        do actor.position.x :: (x + 1) $ float * Map@blockW - actor.rect.left
         break y
       end if
     end for
   end if
   if (Input@Pad(0, Input@EBtn#Right) > 0)
-    do @player.position.x :+ runVelocity
-    var x : int :: @GetHitRight()
-    var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitTop(60.0), @GetHitBottom(-10.0))
+    do actor.position.x :+ runVelocity
+    var x : int :: actor.GetHitRight(Map@width, Map@blockW)
+    var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitTop(Map@height, Map@blockH, 60.0), actor.GetHitBottom(Map@height, Map@blockH, -10.0))
     try
     for y(range.first, range.last)
       if (Map@data[y][x] = 'X')
-        do @player.position.x :: x $ float * Map@blockW - @player.rect.right - 1.0
+        do actor.position.x :: x $ float * Map@blockW - actor.rect.right - 1.0
         break y
       end if
     end for
@@ -94,37 +67,37 @@ func Action()
   end if
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
-  do @Correct(&@player.position.x, leftLimit, rightLimit)
+  do @Correct(&actor.position.x, leftLimit, rightLimit)
 
   { ジャンプ }
   var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
   if (Input@Pad(0, Input@EBtn#B) = 1)
-    do @player.jumpVelocity :: jumpPower
+    do actor.jumpVelocity :: jumpPower
   end if
-  do @player.position.y :+ @player.jumpVelocity
+  do actor.position.y :+ actor.jumpVelocity
   const topLimit : float :: -@height
   const bottomLimit : float :: Map@height $ float * Map@blockH + @height - 10.0
 
   { 重力制御 }
-  if (@Correct(&@player.position.y, topLimit, bottomLimit))
-    do @player.jumpVelocity :: 0.0
+  if (@Correct(&actor.position.y, topLimit, bottomLimit))
+    do actor.jumpVelocity :: 0.0
   else
-    do @player.jumpVelocity :+ Main@gravity
+    do actor.jumpVelocity :+ Main@gravity
   end if
 
-  do @CorrectForMap()
+  do @CorrectForMap(actor)
 end func
 
 { 背景当たり判定 }
-func CorrectForMap()
-  var range : Main@RangeInt :: Main@MakeRangeInt(@GetHitLeft(), @GetHitRight())
-  if (@player.jumpVelocity < 0.0)
-    var y : int :: @GetHitTop(0.0)
+func CorrectForMap(actor : Actor@Actor)
+  var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitLeft(Map@width, Map@blockW), actor.GetHitRight(Map@width, Map@blockW))
+  if (actor.jumpVelocity < 0.0)
+    var y : int :: actor.GetHitTop(Map@height, Map@blockH, 0.0)
     try
     for x(range.first, range.last)
       if (Map@data[y][x] = 'X')
-        do @player.position.y :: (y + 1) $ float * Map@blockH + @height
-        do @player.jumpVelocity :: 0.0
+        do actor.position.y :: (y + 1) $ float * Map@blockH + @height
+        do actor.jumpVelocity :: 0.0
         break x
       end if
     end for
@@ -132,13 +105,13 @@ func CorrectForMap()
       do Dbg@Log("up error:" ~ range.ToStr())
     end try
   end if
-  if (@player.jumpVelocity >= 0.0)
-    var y : int :: @GetHitBottom(0.0)
+  if (actor.jumpVelocity >= 0.0)
+    var y : int :: actor.GetHitBottom(Map@height, Map@blockH, 0.0)
     try
     for x(range.first, range.last)
       if (Map@data[y][x] = 'X')
-        do @player.position.y :: y $ float * Map@blockH
-        do @player.jumpVelocity :: 0.0
+        do actor.position.y :: y $ float * Map@blockH
+        do actor.jumpVelocity :: 0.0
         break x
       end if
     end for
@@ -149,8 +122,8 @@ func CorrectForMap()
 end func
 
 { 描画 }
-func Draw(camera : Main@Position)
-  var x : float :: @player.position.x + @renderOffsetX - camera.x
-  var y : float :: @player.position.y + @renderOffsetY - camera.y
+func Draw(actor : Actor@Actor, camera : Main@Position)
+  var x : float :: actor.position.x + @renderOffsetX - camera.x
+  var y : float :: actor.position.y + @renderOffsetY - camera.y
   do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
 end func

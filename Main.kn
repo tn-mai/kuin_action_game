@@ -139,28 +139,28 @@ func Game(resource : @Resource, status : @Status) : @Result
   do @WaitForKeyReleased()
 
   var camera : @Position :: @MakePosition(0.0, 0.0)
-  do Player@InitPlayer(400.0, 800.0)
+  var player : Actor@Actor :: Player@Create(400.0, 800.0)
   do Map@InitMap()
 
   while (Input@Pad(0, Input@EBtn#A) = 0)
-    do Player@Action()
+    do Player@Action(player)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
-    if (Player@player.position.x < camera.x + cameraForrowingRangeL)
-      do camera.x :: Player@player.position.x - cameraForrowingRangeL
+    if (player.position.x < camera.x + cameraForrowingRangeL)
+      do camera.x :: player.position.x - cameraForrowingRangeL
     end if
     if (camera.x < 0.0)
       do camera.x :: 0.0
     end if
     const cameraForrowingRangeR : float :: Map@viewW * 3.0 / 4.0
-    if (Player@player.position.x >= camera.x + cameraForrowingRangeR)
-      do camera.x :: Player@player.position.x - cameraForrowingRangeR  
+    if (player.position.x >= camera.x + cameraForrowingRangeR)
+      do camera.x :: player.position.x - cameraForrowingRangeR
     end if
     const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
     if (camera.x > rightLimit)
       do camera.x :: rightLimit
     end if
     do Map@DrawMap(camera)
-    do Player@Draw(camera)
+    do Player@Draw(player, camera)
     do Kuin@Act()
   end while
   return @Result#GameOver
