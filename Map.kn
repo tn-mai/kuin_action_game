@@ -75,6 +75,18 @@ func CalcRectInt(left : float, top : float, right : float, bottom : float) : Mai
   return Main@MakeRectInt(l, t, r, b)
 end func
 
+func IsCollisionY(rect : Main@Rect, y : int) : bool
+  var blockTop : float :: y $ float * @blockH
+  if (blockTop >= rect.bottom)
+    return true
+  end if
+  var blockBottom : float :: (y + 1) $ float * @blockH
+  if (blockBottom < rect.top)
+    return true
+  end if
+  return false
+end func
+
 {
   背景の当たり判定
 
@@ -103,12 +115,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
         if (@data[y][x] <> 'X')
           continue y
         end if
-        var blockTop : float :: y $ float * @blockH
-        if (blockTop >= rect.bottom)
-          continue y
-        end if
-        var blockBottom : float :: (y + 1) $ float * @blockH
-        if (blockBottom < rect.top)
+        if (@IsCollisionY(rect, y))
           continue y
         end if
         var blockRight : float :: (x + 1) $ float * @blockW
@@ -128,12 +135,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
         if (@data[y][x] <> 'X')
           continue y
         end if
-        var blockTop : float :: y $ float * @blockH
-        if (blockTop >= rect.bottom)
-          continue y
-        end if
-        var blockBottom : float :: (y + 1) $ float * @blockH
-        if (blockBottom < rect.top)
+        if (@IsCollisionY(rect, y))
           continue y
         end if
         var blockLeft : float :: x $ float * @blockW
