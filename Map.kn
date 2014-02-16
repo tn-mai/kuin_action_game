@@ -89,33 +89,59 @@ func Collision(actor : Actor@Actor) : @CollisionResult
   { 移動方向のみ当たり判定を行う }
   var result : @CollisionResult :: @MakeCollisionResult()
   if (actor.velocity.x < 0.0)
-    for x(left, centerX)
-    for y(top, bottom)
-      if (@data[y][x] = 'X')
+    var left : int :: @CorrectInt(((rect.left + actor.velocity.x) / @blockW) $ int, 0, @width)
+    var top : int :: @CorrectInt((rect.top / @blockH) $ int, 0, @height)
+    var right : int :: @CorrectInt((rect.left / @blockW) $ int, 0, @width)
+    var bottom : int :: @CorrectInt((rect.bottom / @blockH) $ int, 0, @height)
+    for x(right, left, -1)
+      for y(top, bottom)
+        if (@data[y][x] <> 'X')
+          continue y
+        end if
+        var blockTop : float :: y $ float * @blockH
+        if (blockTop >= rect.bottom)
+          continue y
+        end if
+        var blockBottom : float :: (y + 1) $ float * @blockH
+        if (blockBottom < rect.top)
+          continue y
+        end if
         var blockRight : float :: (x + 1) $ float * @blockW
         if (rect.left + actor.velocity.x < blockRight)
           do actor.position.x :: blockRight - actor.rect.left
           do actor.velocity.x :: 0.0
           do result.isHitX :: true
-          break y
+          break x
         end if
-      end if
-    end for
+      end for
     end for
   end if
   if (actor.velocity.x >= 0.0)
-    for x(right, centerX, -1)
-    for y(top, bottom)
-      if (@data[y][x] = 'X')
+    var left : int :: @CorrectInt((rect.right / @blockW) $ int, 0, @width)
+    var top : int :: @CorrectInt((rect.top / @blockH) $ int, 0, @height)
+    var right : int :: @CorrectInt(((rect.right + actor.velocity.x) / @blockW) $ int, 0, @width)
+    var bottom : int :: @CorrectInt((rect.bottom / @blockH) $ int, 0, @height)
+    for x(left, right)
+      for y(top, bottom)
+        if (@data[y][x] <> 'X')
+          continue y
+        end if
+        var blockTop : float :: y $ float * @blockH
+        if (blockTop >= rect.bottom)
+          continue y
+        end if
+        var blockBottom : float :: (y + 1) $ float * @blockH
+        if (blockBottom < rect.top)
+          continue y
+        end if
         var blockLeft : float :: x $ float * @blockW
-        if (rect.right + actor.velocity.x > blockLeft)
+        if (rect.right + actor.velocity.x >= blockLeft)
           do actor.position.x :: blockLeft - actor.rect.right 
           do actor.velocity.x :: 0.0
           do result.isHitX :: true
-          break y
+          break x
         end if
-      end if
-    end for
+      end for
     end for
   end if
 
