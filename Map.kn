@@ -67,6 +67,14 @@ func MakeCollisionResult() : @CollisionResult
   return result
 end func
 
+func CalcRectInt(left : float, top : float, right : float, bottom : float) : Main@RectInt
+  var l : int :: @CorrectInt((left / @blockW) $ int, 0, @width)
+  var t : int :: @CorrectInt((top / @blockH) $ int, 0, @height)
+  var r : int :: @CorrectInt((left / @blockW) $ int, 0, @width)
+  var b : int :: @CorrectInt((bottom / @blockH) $ int, 0, @height)
+  return Main@MakeRectInt(l, t, r, b)
+end func
+
 {
   背景の当たり判定
 
@@ -89,12 +97,9 @@ func Collision(actor : Actor@Actor) : @CollisionResult
   { 移動方向のみ当たり判定を行う }
   var result : @CollisionResult :: @MakeCollisionResult()
   if (actor.velocity.x < 0.0)
-    var left : int :: @CorrectInt(((rect.left + actor.velocity.x) / @blockW) $ int, 0, @width)
-    var top : int :: @CorrectInt((rect.top / @blockH) $ int, 0, @height)
-    var right : int :: @CorrectInt((rect.left / @blockW) $ int, 0, @width)
-    var bottom : int :: @CorrectInt((rect.bottom / @blockH) $ int, 0, @height)
-    for x(right, left, -1)
-      for y(top, bottom)
+    var r : Main@RectInt :: @CalcRectInt(rect.left + actor.velocity.x, rect.top, rect.left, rect.bottom)
+    for x(r.right, r.left, -1)
+      for y(r.top, r.bottom)
         if (@data[y][x] <> 'X')
           continue y
         end if
@@ -117,12 +122,9 @@ func Collision(actor : Actor@Actor) : @CollisionResult
     end for
   end if
   if (actor.velocity.x >= 0.0)
-    var left : int :: @CorrectInt((rect.right / @blockW) $ int, 0, @width)
-    var top : int :: @CorrectInt((rect.top / @blockH) $ int, 0, @height)
-    var right : int :: @CorrectInt(((rect.right + actor.velocity.x) / @blockW) $ int, 0, @width)
-    var bottom : int :: @CorrectInt((rect.bottom / @blockH) $ int, 0, @height)
-    for x(left, right)
-      for y(top, bottom)
+    var r : Main@RectInt :: @CalcRectInt(rect.right, rect.top, rect.right + actor.velocity.x, rect.bottom)
+    for x(r.left, r.right)
+      for y(r.top, r.bottom)
         if (@data[y][x] <> 'X')
           continue y
         end if

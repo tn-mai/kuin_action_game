@@ -103,6 +103,26 @@ func MakeRect(left : float, top : float, right : float, bottom : float) : @Rect
   return rect
 end func
 
+class RectInt()
+  var left : int
+  var top : int
+  var right : int
+  var bottom : int
+
+  func ToStr() : []char
+    return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
+  end func
+end class
+
+func MakeRectInt(left : int, top : int, right : int, bottom : int) : @RectInt
+  var rect : @RectInt :: #@RectInt
+  do rect.left :: left
+  do rect.top :: top
+  do rect.right :: right
+  do rect.bottom :: bottom
+  return rect
+end func
+
 {
   ゲーム結果
 }
