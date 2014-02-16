@@ -1,0 +1,47 @@
+{
+  プレイヤーのショット
+}
+
+var shotList : list<Actor@Actor>
+
+{ 初期化 }
+func Initialize()
+  do @shotList :: #list<Actor@Actor>
+end func
+
+{ ショット発生 }
+func Add(position : Main@Position, velocity : Main@Vector2)
+  var actor : Actor@Actor :: Actor@Create(position, Main@MakeRect(-16.0, -8.0, 16.0, 8.0))
+  do actor.velocity :: ##velocity
+  do @shotList.Add(actor)
+end func
+
+{ ショット移動 }
+func Action(resource : Main@Resource)
+  do @shotList.Head()
+  while (!@shotList.ChkEnd())
+    var shot : Actor@Actor :: @shotList.Get()
+    var result : Map@CollisionResult :: Map@Collision(shot)
+    if (result.isHitX | result.isHitY)
+      do @shotList.Del()
+      do Dbg@Log("del shot")
+    elif (shot.position.x < -16.0 | shot.position.x > Map@width $ float * Map@blockW)
+      do @shotList.Del()
+      do Dbg@Log("del shot")
+    else
+      do @shotList.Next()
+    end if
+  end while
+end func
+
+{ 描画 }
+func Draw(camera : Main@Position)
+  do @shotList.Head()
+  while (!@shotList.ChkEnd())
+    var shot : Actor@Actor :: @shotList.Get()
+    var x : float :: shot.position.x - 16.0 - camera.x
+    var y : float :: shot.position.y - 8.0 - camera.y
+    do Draw@Rect(x, y, 32.0, 16.0, 1.0, 0.0, 1.0, 1.0)
+    do @shotList.Next()
+  end while
+end func
