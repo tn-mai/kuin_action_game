@@ -78,41 +78,6 @@ func Action(resource : Main@Resource, actor : Actor@Actor)
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
   do @Correct(&actor.position.x, leftLimit, rightLimit)
-
-  { do @CorrectForMap(actor) }
-end func
-
-{ 背景当たり判定 }
-func CorrectForMap(actor : Actor@Actor)
-  var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitLeft(Map@width, Map@blockW), actor.GetHitRight(Map@width, Map@blockW))
-  if (actor.velocity.y < 0.0)
-    var y : int :: actor.GetHitTop(Map@height, Map@blockH, 0.0)
-    try
-    for x(range.first, range.last)
-      if (Map@data[y][x] = 'X')
-        do actor.position.y :: (y + 1) $ float * Map@blockH + @height
-        do actor.velocity.y :: 0.0
-        break x
-      end if
-    end for
-    catch()
-      do Dbg@Log("up error:" ~ range.ToStr())
-    end try
-  end if
-  if (actor.velocity.y >= 0.0)
-    var y : int :: actor.GetHitBottom(Map@height, Map@blockH, 0.0)
-    try
-    for x(range.first, range.last)
-      if (Map@data[y][x] = 'X')
-        do actor.position.y :: y $ float * Map@blockH
-        do actor.velocity.y :: 0.0
-        break x
-      end if
-    end for
-    catch()
-      do Dbg@Log("down error:" ~ range.ToStr())
-    end try
-  end if
 end func
 
 { 描画 }
