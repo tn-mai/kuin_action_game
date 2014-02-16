@@ -87,6 +87,18 @@ func IsCollisionY(rect : Main@Rect, y : int) : bool
   return false
 end func
 
+func IsCollisionX(rect : Main@Rect, x : int) : bool
+  var blockLeft : float :: x $ float * @blockW
+  if (blockLeft >= rect.right)
+    return true
+  end if
+  var blockRight : float :: (x + 1) $ float * @blockW
+  if (blockRight < rect.left)
+    return true
+  end if
+  return false
+end func
+
 {
   背景の当たり判定
 
@@ -150,31 +162,43 @@ func Collision(actor : Actor@Actor) : @CollisionResult
   end if
 
   if (actor.velocity.y < 0.0)
-    var y : int :: top
-    for x(left, right)
-      if (@data[y][x] = 'X')
-        var blockBottom : float :: y $ float * @blockH
+    var r : Main@RectInt :: @CalcRectInt(rect.left, rect.top + actor.velocity.y, rect.right, rect.top)
+    for y(r.bottom, r.top, -1)
+      for x(r.left, r.right)
+        if (@data[y][x] <> 'X')
+          continue x
+        end if
+        if (@IsCollisionX(rect, x))
+          continue x
+        end if
+        var blockBottom : float :: (y + 1) $ float * @blockH
         if (rect.top + actor.velocity.y < blockBottom)
           do actor.position.y :: blockBottom - actor.rect.top
           do actor.velocity.y :: 0.0
           do result.isHitY :: true
-          break x
+          break y
         end if
-      end if
+      end for
     end for
   end if
   if (actor.velocity.y >= 0.0)
-    var y : int :: bottom 
-    for x(left, right)
-      if (@data[y][x] = 'X')
+    var r : Main@RectInt :: @CalcRectInt(rect.left, rect.bottom, rect.right, rect.bottom + actor.velocity.y)
+    for y(r.top, r.bottom)
+      for x(r.left, r.right)
+        if (@data[y][x] <> 'X')
+          continue x
+        end if
+        if (@IsCollisionX(rect, x))
+          continue x
+        end if
         var blockTop : float :: y $ float * @blockH
-        if (rect.bottom + actor.velocity.y > blockTop)
+        if (rect.bottom + actor.velocity.y >= blockTop)
           do actor.position.y :: blockTop - actor.rect.bottom
           do actor.velocity.y :: 0.0
           do result.isHitY :: true
-          break x
+          break y
         end if
-      end if
+      end for
     end for
   end if
 
