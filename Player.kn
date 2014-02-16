@@ -19,52 +19,33 @@ func Correct(n : &float, min : float, max : float) : bool
   return false
 end func
 
-func CorrectInt(n : &int, min : int, max : int) : bool
-  if (n < min)
-    do n :: min
-    return true
-  elif (n >= max)
-    do n :: max - 1
-    return true
-  end if
-  return false
-end func
-
 { 初期化 }
 func Create(x : float, y : float) : Actor@Actor
   return Actor@Create(Main@MakePosition(x, y), Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0))
 end func
 
 { 操作 }
-func Action(actor : Actor@Actor)
+func Action(resource : Main@Resource, actor : Actor@Actor)
   { 左右移動 }
   const runVelocity : float :: 16.0
+  var velocity : Main@Vector2 :: #Main@Vector2
   if (Input@Pad(0, Input@EBtn#Left) > 0)
-    do actor.position.x :- runVelocity
-    var x : int :: actor.GetHitLeft(Map@width, Map@blockW)
-    var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitTop(Map@height, Map@blockH, 60.0), actor.GetHitBottom(Map@height, Map@blockH, -10.0))
-    for y(range.first, range.last)
-      if (Map@data[y][x] = 'X')
-        do actor.position.x :: (x + 1) $ float * Map@blockW - actor.rect.left
-        break y
-      end if
-    end for
+    do velocity.x :- runVelocity
   end if
   if (Input@Pad(0, Input@EBtn#Right) > 0)
-    do actor.position.x :+ runVelocity
-    var x : int :: actor.GetHitRight(Map@width, Map@blockW)
-    var range : Main@RangeInt :: Main@MakeRangeInt(actor.GetHitTop(Map@height, Map@blockH, 60.0), actor.GetHitBottom(Map@height, Map@blockH, -10.0))
-    try
-    for y(range.first, range.last)
-      if (Map@data[y][x] = 'X')
-        do actor.position.x :: x $ float * Map@blockW - actor.rect.right - 1.0
-        break y
-      end if
-    end for
-    catch()
-      do Dbg@Log("x:" ~ x.ToStr() ~ " range:" ~ range.ToStr())
-    end try
+    do velocity.x :+ runVelocity
   end if
+  var rect : Main@Rect :: ##actor.rect
+  do rect.left :+ actor.position.x
+  do rect.top :+ actor.position.y
+  do rect.right :+ actor.position.x
+  do rect.bottom :+ actor.position.y
+  do Dbg@Log("rect" ~ rect.ToStr())
+  var newVelocity : Main@Vector2 :: Map@Collision(rect, velocity)
+  do Main@DrawText(resource, velocity.ToStr(), 32, 0, 0)
+  do Main@DrawText(resource, newVelocity.ToStr(), 32, 300, 0)
+  do actor.position.Add(newVelocity)
+
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
   do @Correct(&actor.position.x, leftLimit, rightLimit)

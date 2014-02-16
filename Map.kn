@@ -47,3 +47,78 @@ func DrawMap(camera : Main@Position)
     end for
   end for
 end func
+
+func CorrectInt(n : int, min : int, max : int) : int
+  if (n < min)
+    return min
+  elif (n >= max)
+    return max - 1
+  end if
+  return n
+end func
+
+{
+  背景の当たり判定
+
+  移動方向にある障害物を考慮した移動量を返す
+}
+func Collision(rect : Main@Rect, velocity: Main@Vector2) : Main@Vector2
+  { 当たり判定を行う範囲を決める }
+  var left : int :: @CorrectInt(((rect.left + velocity.x - @blockW) / @blockW) $ int, 0, @width)
+  var top : int :: @CorrectInt(((rect.top + velocity.y - @blockH) / @blockH) $ int, 0, @height)
+  var right : int :: @CorrectInt(((rect.right + velocity.x + @blockW) / @blockW) $ int, 0, @width)
+  var bottom : int :: @CorrectInt(((rect.bottom + velocity.y + @blockH) / @blockH) $ int, 0, @height)
+
+  { 移動方向のみ当たり判定を行う }
+  var newVelocity : Main@Vector2 :: ##velocity
+  if (velocity.x < 0.0)
+    var x : int :: left
+    for y(top, bottom)
+      if (@data[y][x] = 'X')
+        var blockRight : float :: (x + 1) $ float * @blockW
+        if (rect.left + velocity.x < blockRight)
+          do newVelocity.x ::  blockRight - rect.left
+          break y
+        end if
+      end if
+    end for
+  end if
+  if (velocity.x >= 0.0)
+    var x : int :: right
+    for y(top, bottom)
+      if (@data[y][x] = 'X')
+        var blockLeft : float :: x $ float * @blockW
+        if (rect.right + velocity.x > blockLeft)
+          do newVelocity.x :: rect.right - blockLeft
+          break y
+        end if
+      end if
+    end for
+  end if
+
+  if (velocity.y < 0.0)
+    var y : int :: left
+    for x(left, right)
+      if (@data[y][x] = 'X')
+        var blockTop : float :: y $ float * @blockH
+        if (rect.top + velocity.y < blockTop)
+          do newVelocity.y :: blockTop - rect.top
+          break x
+        end if
+      end if
+    end for
+  end if
+  if (velocity.y >= 0.0)
+    var y : int :: right
+    for x(left, right)
+      if (@data[y][x] = 'X')
+        var blockBottom : float :: y $ float * @blockH
+        if (rect.bottom + velocity.y > blockBottom)
+          do newVelocity.y :: rect.bottom - blockBottom
+          break x
+        end if
+      end if
+    end for
+  end if
+  return newVelocity
+end func

@@ -79,8 +79,18 @@ class Rect()
   var top : float
   var right : float
   var bottom : float
+
   func ToStr() : []char
     return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
+  end func
+
+  func Add(pos : @Position) : @Rect
+    var rect : @Rect :: ##this
+    do rect.left :+ pos.x
+    do rect.top :+ pos.y
+    do rect.right :+ pos.x
+    do rect.bottom :+ pos.y
+    return rect
   end func
 end class
 
@@ -147,7 +157,7 @@ end func
 { 簡易フォント描画 }
 func DrawText(resource : @Resource, text : []char, size : int, x : int, y : int)
   var texture : Draw@CTex :: resource.Font().MakeTex(size, text, 16)
-  do texture.Draw(x $ float, y $ float, texture.Width(), texture.Height(), 0.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+  do texture.Draw(0.0, 0.0, texture.Width(), texture.Height(), x $ float, y $ float, 1.0, 1.0, 1.0, 1.0)
 end func
 
 { キー解除待ち }
@@ -179,7 +189,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   do Map@InitMap()
 
   while (Input@Pad(0, Input@EBtn#A) = 0)
-    do Player@Action(player)
+    do Player@Action(resource, player)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)
       do camera.x :: player.position.x - cameraForrowingRangeL
