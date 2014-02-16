@@ -47,8 +47,8 @@ end class
 
 func Create(position : Main@Position, rect : Main@Rect) : @Actor
   var actor : @Actor :: #@Actor
-  do actor.position :: position
-  do actor.rect :: rect
+  do actor.position :: ##position
+  do actor.rect :: ##rect
   do actor.velocity :: #Main@Vector2
   return actor
 end func
