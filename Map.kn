@@ -57,68 +57,97 @@ func CorrectInt(n : int, min : int, max : int) : int
   return n
 end func
 
+class CollisionResult()
+  var isHitX : bool
+  var isHitY : bool
+end class
+
+func MakeCollisionResult() : @CollisionResult
+  var result : @CollisionResult :: #@CollisionResult
+  return result
+end func
+
 {
   背景の当たり判定
 
   移動方向にある障害物を考慮した移動量を返す
 }
-func Collision(rect : Main@Rect, velocity: Main@Vector2) : Main@Vector2
+func Collision(actor : Actor@Actor) : @CollisionResult
   { 当たり判定を行う範囲を決める }
-  var left : int :: @CorrectInt(((rect.left + velocity.x - @blockW) / @blockW) $ int, 0, @width)
-  var top : int :: @CorrectInt(((rect.top + velocity.y - @blockH) / @blockH) $ int, 0, @height)
-  var right : int :: @CorrectInt(((rect.right + velocity.x + @blockW) / @blockW) $ int, 0, @width)
-  var bottom : int :: @CorrectInt(((rect.bottom + velocity.y + @blockH) / @blockH) $ int, 0, @height)
+  var rect : Main@Rect :: ##actor.rect
+  do rect.left :+ actor.position.x
+  do rect.top :+ actor.position.y
+  do rect.right :+ actor.position.x
+  do rect.bottom :+ actor.position.y
+  var left : int :: @CorrectInt(((rect.left + actor.velocity.x - @blockW) / @blockW) $ int, 0, @width)
+  var top : int :: @CorrectInt(((rect.top + actor.velocity.y - @blockH) / @blockH) $ int, 0, @height)
+  var right : int :: @CorrectInt(((rect.right + actor.velocity.x + @blockW) / @blockW) $ int, 0, @width)
+  var bottom : int :: @CorrectInt(((rect.bottom + actor.velocity.y + @blockH) / @blockH) $ int, 0, @height)
+  var centerX : int :: (left + right) / 2
+  var centerY : int :: (top + bottom) / 2
 
   { 移動方向のみ当たり判定を行う }
-  var newVelocity : Main@Vector2 :: ##velocity
-  if (velocity.x < 0.0)
-    var x : int :: left
+  var result : @CollisionResult :: @MakeCollisionResult()
+  if (actor.velocity.x < 0.0)
+    for x(left, centerX)
     for y(top, bottom)
       if (@data[y][x] = 'X')
         var blockRight : float :: (x + 1) $ float * @blockW
-        if (rect.left + velocity.x < blockRight)
-          do newVelocity.x ::  blockRight - rect.left
+        if (rect.left + actor.velocity.x < blockRight)
+          do actor.position.x :: blockRight - actor.rect.left
+          do actor.velocity.x :: 0.0
+          do result.isHitX :: true
           break y
         end if
       end if
     end for
+    end for
   end if
-  if (velocity.x >= 0.0)
-    var x : int :: right
+  if (actor.velocity.x >= 0.0)
+    for x(right, centerX, -1)
     for y(top, bottom)
       if (@data[y][x] = 'X')
         var blockLeft : float :: x $ float * @blockW
-        if (rect.right + velocity.x > blockLeft)
-          do newVelocity.x :: rect.right - blockLeft
+        if (rect.right + actor.velocity.x > blockLeft)
+          do actor.position.x :: blockLeft - actor.rect.right 
+          do actor.velocity.x :: 0.0
+          do result.isHitX :: true
           break y
+        end if
+      end if
+    end for
+    end for
+  end if
+
+  if (actor.velocity.y < 0.0)
+    var y : int :: top
+    for x(left, right)
+      if (@data[y][x] = 'X')
+        var blockBottom : float :: y $ float * @blockH
+        if (rect.top + actor.velocity.y < blockBottom)
+          do actor.position.y :: blockBottom - actor.rect.top
+          do actor.velocity.y :: 0.0
+          do result.isHitY :: true
+          break x
+        end if
+      end if
+    end for
+  end if
+  if (actor.velocity.y >= 0.0)
+    var y : int :: bottom 
+    for x(left, right)
+      if (@data[y][x] = 'X')
+        var blockTop : float :: y $ float * @blockH
+        if (rect.bottom + actor.velocity.y > blockTop)
+          do actor.position.y :: blockTop - actor.rect.bottom
+          do actor.velocity.y :: 0.0
+          do result.isHitY :: true
+          break x
         end if
       end if
     end for
   end if
 
-  if (velocity.y < 0.0)
-    var y : int :: left
-    for x(left, right)
-      if (@data[y][x] = 'X')
-        var blockTop : float :: y $ float * @blockH
-        if (rect.top + velocity.y < blockTop)
-          do newVelocity.y :: blockTop - rect.top
-          break x
-        end if
-      end if
-    end for
-  end if
-  if (velocity.y >= 0.0)
-    var y : int :: right
-    for x(left, right)
-      if (@data[y][x] = 'X')
-        var blockBottom : float :: y $ float * @blockH
-        if (rect.bottom + velocity.y > blockBottom)
-          do newVelocity.y :: rect.bottom - blockBottom
-          break x
-        end if
-      end if
-    end for
-  end if
-  return newVelocity
+  do actor.position.Add(actor.velocity)
+  return result
 end func

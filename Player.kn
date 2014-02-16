@@ -27,46 +27,58 @@ end func
 { 操作 }
 func Action(resource : Main@Resource, actor : Actor@Actor)
   { 左右移動 }
-  const runVelocity : float :: 16.0
-  var velocity : Main@Vector2 :: #Main@Vector2
+  const runVelocity : float :: 6.0
+  const maxRunVelocity : float :: 16.0
+  var velocity : Main@Vector2 :: ##actor.velocity
   if (Input@Pad(0, Input@EBtn#Left) > 0)
     do velocity.x :- runVelocity
-  end if
-  if (Input@Pad(0, Input@EBtn#Right) > 0)
+    if (velocity.x < -maxRunVelocity)
+      do velocity.x :: -maxRunVelocity
+    end if
+  elif (Input@Pad(0, Input@EBtn#Right) > 0)
     do velocity.x :+ runVelocity
+    if (velocity.x > maxRunVelocity)
+      do velocity.x :: maxRunVelocity
+    end if
+  else
+    if (velocity.x > 0.0)
+      do velocity.x :- runVelocity
+      if (velocity.x < 0.0)
+        do velocity.x :: 0.0
+      end if
+    elif (velocity.x < 0.0)
+      do velocity.x :+ runVelocity
+      if (velocity.x < 0.0)
+        do velocity.x :: 0.0
+      end if
+    end if
   end if
-  var rect : Main@Rect :: ##actor.rect
-  do rect.left :+ actor.position.x
-  do rect.top :+ actor.position.y
-  do rect.right :+ actor.position.x
-  do rect.bottom :+ actor.position.y
-  do Dbg@Log("rect" ~ rect.ToStr())
-  var newVelocity : Main@Vector2 :: Map@Collision(rect, velocity)
-  do Main@DrawText(resource, velocity.ToStr(), 32, 0, 0)
-  do Main@DrawText(resource, newVelocity.ToStr(), 32, 300, 0)
-  do actor.position.Add(newVelocity)
+
+  { ジャンプ }
+  if (Input@Pad(0, Input@EBtn#B) = 1)
+    var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
+    do velocity.y :: jumpPower
+  end if
+
+  { 重力制御 }
+  do velocity.y  :+ Main@gravity
+  const topLimit : float :: -@height
+  const bottomLimit : float :: Map@height $ float * Map@blockH + @height - 10.0
+  if (@Correct(&actor.position.y, topLimit, bottomLimit))
+    do actor.velocity.y  :: 0.0
+  end if
+
+  do actor.velocity :: velocity
+
+  var result : Map@CollisionResult :: Map@Collision(actor)
+  do Main@DrawText(resource, "x:" ~ result.isHitX.ToStr() ~ " y:" ~ result.isHitY.ToStr(), 32, 0, 0)
+  do Main@DrawText(resource, actor.velocity.ToStr(), 32, 0, 100)
 
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
   do @Correct(&actor.position.x, leftLimit, rightLimit)
 
-  { ジャンプ }
-  var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
-  if (Input@Pad(0, Input@EBtn#B) = 1)
-    do actor.velocity.y :: jumpPower
-  end if
-  do actor.position.y :+ actor.velocity.y
-  const topLimit : float :: -@height
-  const bottomLimit : float :: Map@height $ float * Map@blockH + @height - 10.0
-
-  { 重力制御 }
-  if (@Correct(&actor.position.y, topLimit, bottomLimit))
-    do actor.velocity.y  :: 0.0
-  else
-    do actor.velocity.y  :+ Main@gravity
-  end if
-
-  do @CorrectForMap(actor)
+  { do @CorrectForMap(actor) }
 end func
 
 { 背景当たり判定 }
