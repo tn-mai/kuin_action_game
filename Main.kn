@@ -51,7 +51,7 @@ class Vector2()
   var x : float
   var y : float
   { 文字列変換 }
-  func Tostr() : []char
+  func ToStr() : []char
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
   end func
   { 加算 }
