@@ -70,7 +70,7 @@ end func
 func CalcRectInt(left : float, top : float, right : float, bottom : float) : Main@RectInt
   var l : int :: @CorrectInt((left / @blockW) $ int, 0, @width)
   var t : int :: @CorrectInt((top / @blockH) $ int, 0, @height)
-  var r : int :: @CorrectInt((left / @blockW) $ int, 0, @width)
+  var r : int :: @CorrectInt((right / @blockW) $ int, 0, @width)
   var b : int :: @CorrectInt((bottom / @blockH) $ int, 0, @height)
   return Main@MakeRectInt(l, t, r, b)
 end func
@@ -111,12 +111,6 @@ func Collision(actor : Actor@Actor) : @CollisionResult
   do rect.top :+ actor.position.y
   do rect.right :+ actor.position.x
   do rect.bottom :+ actor.position.y
-  var left : int :: @CorrectInt(((rect.left + actor.velocity.x - @blockW) / @blockW) $ int, 0, @width)
-  var top : int :: @CorrectInt(((rect.top + actor.velocity.y - @blockH) / @blockH) $ int, 0, @height)
-  var right : int :: @CorrectInt(((rect.right + actor.velocity.x + @blockW) / @blockW) $ int, 0, @width)
-  var bottom : int :: @CorrectInt(((rect.bottom + actor.velocity.y + @blockH) / @blockH) $ int, 0, @height)
-  var centerX : int :: (left + right) / 2
-  var centerY : int :: (top + bottom) / 2
 
   { 移動方向のみ当たり判定を行う }
   var result : @CollisionResult :: @MakeCollisionResult()
