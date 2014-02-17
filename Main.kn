@@ -29,14 +29,16 @@ class Position()
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
   end func
   { 加算 }
-  func Add(v : @Vector2)
+  func Add(v : @Vector2) : @Position
     do this.x :+ v.x
     do this.y :+ v.y
+    return this
   end func
   { 減算 }
-  func Sub(v : @Vector2)
+  func Sub(v : @Position) : @Position
     do this.x :- v.x
     do this.y :- v.y
+    return this
   end func
 end class
 
@@ -55,14 +57,27 @@ class Vector2()
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
   end func
   { 加算 }
-  func Add(v : @Vector2)
+  func Add(v : @Vector2) : @Vector2
     do this.x :+ v.x
     do this.y :+ v.y
+    return this
   end func
   { 減算 }
-  func Sub(v : @Vector2)
+  func Sub(v : @Vector2) : @Vector2
     do this.x :- v.x
     do this.y :- v.y
+    return this
+  end func
+  { 乗算 }
+  func MulVector(v : @Vector2) : @Vector2
+    do this.x :* v.x
+    do this.y :* v.y
+    return this
+  end func
+  func MulScalar(n : float) : @Vector2
+    do this.x :* n
+    do this.y :* n
+    return this
   end func
 end class
 
