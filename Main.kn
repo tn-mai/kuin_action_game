@@ -211,12 +211,6 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   while (Input@Pad(0, Input@EBtn#A) = 0)
     do Player@Action(resource, player)
-    if (Input@Pad(0, Input@EBtn#C) = 1)
-      var pos : @Position :: ##player.position
-      do pos.y :+ (player.rect.top + player.rect.bottom) / 2.0
-      do PlayerShot@Add(pos, @MakeVector2(32.0, 0.0))
-      do Dbg@Log("shot")
-    end if
     do PlayerShot@Action(resource)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)

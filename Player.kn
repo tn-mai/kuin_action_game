@@ -60,6 +60,13 @@ func Action(resource : Main@Resource, actor : Actor@Actor)
     do velocity.y :: jumpPower
   end if
 
+  { ショット }
+  if (Input@Pad(0, Input@EBtn#C) = 1)
+    var pos : Main@Position :: ##actor.position
+    do pos.y :+ (actor.rect.top + actor.rect.bottom) / 2.0
+    do PlayerShot@Add(pos, Main@MakeVector2(32.0, 0.0))
+    do Dbg@Log("shot")
+  end if
   { 重力制御 }
   do velocity.y  :+ Main@gravity
   const topLimit : float :: -@height
