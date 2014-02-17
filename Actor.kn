@@ -19,6 +19,7 @@ class Actor()
   var position : Main@Position
   var rect : Main@Rect
   var velocity : Main@Vector2
+  var direction : Main@Vector2
 
   func GetHitLeft(width : int, blockSize : float) : int
     var n : int :: ((this.position.x + this.rect.left) / Map@blockW) $ int
@@ -50,6 +51,7 @@ func Create(position : Main@Position, rect : Main@Rect) : @Actor
   do actor.position :: ##position
   do actor.rect :: ##rect
   do actor.velocity :: #Main@Vector2
+  do actor.direction :: Main@MakeVector2(1.0, 0.0)
   return actor
 end func
 
