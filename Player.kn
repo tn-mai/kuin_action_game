@@ -31,11 +31,13 @@ func Action(resource : Main@Resource, actor : Actor@Actor)
   const maxRunVelocity : float :: 16.0
   var velocity : Main@Vector2 :: ##actor.velocity
   if (Input@Pad(0, Input@EBtn#Left) > 0)
+    do actor.direction :: Main@MakeVector2(-1.0, 0.0)
     do velocity.x :- runVelocity
     if (velocity.x < -maxRunVelocity)
       do velocity.x :: -maxRunVelocity
     end if
   elif (Input@Pad(0, Input@EBtn#Right) > 0)
+    do actor.direction :: Main@MakeVector2(1.0, 0.0)
     do velocity.x :+ runVelocity
     if (velocity.x > maxRunVelocity)
       do velocity.x :: maxRunVelocity
