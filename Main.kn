@@ -5,6 +5,30 @@
 { 重力定数 }
 const gravity : float :: 9.8 * 10.0 / 60.0
 
+{ RBGAカラー }
+class ColorRGBA()
+  var r : float
+  var g : float
+  var b : float
+  var a : float
+end class
+
+func MakeColorRGBA(r : float, g : float, b : float, a : float) : @ColorRGBA
+  var c : @ColorRGBA :: #@ColorRGBA
+  do c.r :: r
+  do c.g :: g
+  do c.b :: b
+  do c.a :: a
+  return c
+end func
+
+func SetColorRGBA(c : &@ColorRGBA, r : float, g : float, b : float, a : float)
+  do c.r :: r
+  do c.g :: g
+  do c.b :: b
+  do c.a :: a
+end func
+
 { 一次元範囲 }
 class RangeInt()
   var first : int
@@ -223,10 +247,19 @@ func Game(resource : @Resource, status : @Status) : @Result
   var player : Actor@Actor :: Player@Create(400.0, 800.0)
   do Map@InitMap()
   do PlayerShot@Initialize()
+  do Enemy@Initialize()
+
+  for i(0, 9)
+    do Enemy@Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
+  end for
+
+  const enemyCount : int :: 600
+  var enemyCounter : int
 
   while (Input@Pad(0, Input@EBtn#A) = 0)
     do Player@Action(resource, player)
     do PlayerShot@Action(resource)
+    do Enemy@Action(resource)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)
       do camera.x :: player.position.x - cameraForrowingRangeL
@@ -242,7 +275,16 @@ func Game(resource : @Resource, status : @Status) : @Result
     if (camera.x > rightLimit)
       do camera.x :: rightLimit
     end if
+
+    if (Enemy@enemyList.Len() < 10 & enemyCounter <= 0)
+      do enemyCounter :: 10 * 60
+      do Enemy@Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
+    elif (enemyCounter > 0)
+      do enemyCounter :- 1
+    end if
+
     do Map@DrawMap(camera)
+    do Enemy@Draw(camera)
     do Player@Draw(player, camera)
     do PlayerShot@Draw(camera)
     do Kuin@Act()

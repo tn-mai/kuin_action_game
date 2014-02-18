@@ -20,6 +20,23 @@ class Actor()
   var rect : Main@Rect
   var velocity : Main@Vector2
   var direction : Main@Vector2
+  var color : Main@ColorRGBA
+
+  func Initialize(position : Main@Position, rect : Main@Rect)
+    do this.position :: ##position
+    do this.rect :: ##rect
+    do this.velocity :: #Main@Vector2
+    do this.direction :: Main@MakeVector2(1.0, 0.0)
+    do this.color :: Main@MakeColorRGBA(0.5, 0.5, 0.5, 1.0)
+  end func
+
+  func Draw(position : Main@Position)
+    var x : float :: this.position.x + this.rect.left - position.x
+    var y : float :: this.position.y + this.rect.top - position.y
+    var w : float :: this.rect.right - this.rect.left
+    var h : float :: this.rect.bottom - this.rect.top
+    do Draw@Rect(x, y, w, h, this.color.r, this.color.g, this.color.b, this.color.a)
+  end func
 
   func GetHitLeft(width : int, blockSize : float) : int
     var n : int :: ((this.position.x + this.rect.left) / Map@blockW) $ int
@@ -48,10 +65,7 @@ end class
 
 func Create(position : Main@Position, rect : Main@Rect) : @Actor
   var actor : @Actor :: #@Actor
-  do actor.position :: ##position
-  do actor.rect :: ##rect
-  do actor.velocity :: #Main@Vector2
-  do actor.direction :: Main@MakeVector2(1.0, 0.0)
+  do actor.Initialize(position, rect)
   return actor
 end func
 

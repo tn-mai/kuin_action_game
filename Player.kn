@@ -66,7 +66,7 @@ func Action(resource : Main@Resource, actor : Actor@Actor)
   if (Input@Pad(0, Input@EBtn#C) = 1)
     var pos : Main@Position :: ##actor.position
     do pos.y :+ (actor.rect.top + actor.rect.bottom) / 2.0
-    do PlayerShot@Add(pos, Main@MakeVector2(32.0, 0.0))
+    do PlayerShot@Add(pos, (##actor.direction).MulScalar(32.0))
     do Dbg@Log("shot")
   end if
   { 重力制御 }

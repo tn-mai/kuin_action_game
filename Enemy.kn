@@ -1,0 +1,44 @@
+{
+  敵
+}
+
+const width : float :: 100.0
+const height : float :: 160.0
+
+class Enemy(Actor@Actor) 
+end class
+
+var enemyList : list<@Enemy>
+
+func Initialize()
+  do @enemyList :: #list<@Enemy>
+end func
+
+func Add(position : Main@Position)
+  var enemy : @Enemy :: #@Enemy
+  var rect : Main@Rect :: Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
+  do (enemy $ Actor@Actor).Initialize(position, rect)
+  do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
+  do @enemyList.Add(enemy)
+end func
+
+{ 更新 }
+func Action(resource : Main@Resource)
+  do @enemyList.Head()
+  while (!@enemyList.ChkEnd())
+    var enemy : @Enemy :: @enemyList.Get()
+    do enemy.velocity.y  :+ Main@gravity
+    var result : Map@CollisionResult :: Map@Collision(enemy)
+    do @enemyList.Next()
+  end while
+end func
+
+{ 描画 }
+func Draw(camera : Main@Position)
+  do @enemyList.Head()
+  while (!@enemyList.ChkEnd())
+    var enemy : @Enemy :: @enemyList.Get()
+    do enemy.Draw(camera)
+    do @enemyList.Next()
+  end while
+end func
