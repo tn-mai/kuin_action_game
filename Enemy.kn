@@ -37,7 +37,7 @@ func Add(position : Main@Position)
 end func
 
 { 敵リスト更新 }
-func Action(resource : Main@Resource, player : Actor@Actor, shotList : PlayerShot@ShotList)
+func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList)
   do @enemyList.Head()
   while (!@enemyList.ChkEnd())
     var enemy : @Enemy :: @enemyList.Get()

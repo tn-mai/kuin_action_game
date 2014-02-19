@@ -25,7 +25,7 @@ func Create(x : float, y : float) : Actor@Actor
 end func
 
 { 操作 }
-func Action(resource : Main@Resource, actor : Actor@Actor, shotList : PlayerShot@ShotList)
+func Action(resource : Main@Resource, actor : Actor@Actor, shotList : Shot@ShotList)
   { 左右移動 }
   const runVelocity : float :: 6.0
   const maxRunVelocity : float :: 16.0

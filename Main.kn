@@ -251,8 +251,8 @@ func Game(resource : @Resource, status : @Status) : @Result
   var camera : @Position :: @MakePosition(0.0, 0.0)
   var player : Actor@Actor :: Player@Create(400.0, 800.0)
   do Map@InitMap()
-  var playerShotList : PlayerShot@ShotList :: PlayerShot@MakeShotList()
-  var enemyShotList : PlayerShot@ShotList :: PlayerShot@MakeShotList()
+  var playerShotList : Shot@ShotList :: Shot@MakeShotList()
+  var enemyShotList : Shot@ShotList :: Shot@MakeShotList()
   do Enemy@Initialize()
 
   for i(0, 9)
