@@ -25,10 +25,8 @@ class ShotList()
       var result : Map@CollisionResult :: Map@Collision(shot)
       if (result.isHitX | result.isHitY)
         do this.shotList.Del()
-        do Dbg@Log("del shot")
       elif (shot.position.x < -16.0 | shot.position.x > Map@width $ float * Map@blockW)
         do this.shotList.Del()
-        do Dbg@Log("del shot")
       else
         do this.shotList.Next()
       end if
