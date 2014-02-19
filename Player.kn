@@ -25,7 +25,7 @@ func Create(x : float, y : float) : Actor@Actor
 end func
 
 { 操作 }
-func Action(resource : Main@Resource, actor : Actor@Actor)
+func Action(resource : Main@Resource, actor : Actor@Actor, shotList : PlayerShot@ShotList)
   { 左右移動 }
   const runVelocity : float :: 6.0
   const maxRunVelocity : float :: 16.0
@@ -66,7 +66,7 @@ func Action(resource : Main@Resource, actor : Actor@Actor)
   if (Input@Pad(0, Input@EBtn#C) = 1)
     var pos : Main@Position :: ##actor.position
     do pos.y :+ (actor.rect.top + actor.rect.bottom) / 2.0
-    do PlayerShot@Add(pos, (##actor.direction).MulScalar(32.0))
+    do shotList.Add(pos, (##actor.direction).MulScalar(32.0))
     do Dbg@Log("shot")
   end if
   { 重力制御 }

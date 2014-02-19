@@ -246,7 +246,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   var camera : @Position :: @MakePosition(0.0, 0.0)
   var player : Actor@Actor :: Player@Create(400.0, 800.0)
   do Map@InitMap()
-  do PlayerShot@Initialize()
+  var playerShotList : PlayerShot@ShotList :: PlayerShot@MakeShotList()
   do Enemy@Initialize()
 
   for i(0, 9)
@@ -257,8 +257,8 @@ func Game(resource : @Resource, status : @Status) : @Result
   var enemyCounter : int
 
   while (Input@Pad(0, Input@EBtn#A) = 0)
-    do Player@Action(resource, player)
-    do PlayerShot@Action(resource)
+    do Player@Action(resource, player, playerShotList)
+    do playerShotList.Action(resource)
     do Enemy@Action(resource)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)
@@ -286,7 +286,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     do Map@DrawMap(camera)
     do Enemy@Draw(camera)
     do Player@Draw(player, camera)
-    do PlayerShot@Draw(camera)
+    do playerShotList.Draw(camera)
     do Kuin@Act()
   end while
   return @Result#GameOver
