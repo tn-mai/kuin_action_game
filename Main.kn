@@ -245,6 +245,10 @@ end func
   ゲーム
 }
 func Game(resource : @Resource, status : @Status) : @Result
+  func ShotCollision(left : Actor@Actor, right : Actor@Actor) : Shot@DeletionRequest
+    return Shot@DeletionRequest#Both
+  end func
+
   do @WaitForKeyReleased()
 
   var camera : @Position :: @MakePosition(0.0, 0.0)
@@ -254,7 +258,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   var enemyShotList : Shot@ShotList :: Shot@Create()
   var enemyList : Enemy@EnemyList :: Enemy@Create()
 
-  for i(0, 9)
+  for i(0, 5)
     do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
   end for
 
@@ -266,6 +270,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     do playerShotList.Action(resource)
     do enemyList.Action(resource, player, enemyShotList)
     do enemyShotList.Action(resource)
+    do Shot@Collision(playerShotList, enemyShotList, ShotCollision)
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)
       do camera.x :: player.position.x - cameraForrowingRangeL

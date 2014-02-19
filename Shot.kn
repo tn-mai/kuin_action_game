@@ -46,8 +46,69 @@ class ShotList()
   end func
 end class
 
+{ 弾リストを作成する }
 func Create() : @ShotList
   var shotList : @ShotList :: #@ShotList
   do shotList.Initialize()
   return shotList
+end func
+
+func HasCollision(a0 : float, a1 : float, b0 : float, b1 : float) : bool
+  { a0 b0 a1 }
+  if (a0 < b0 & a1 >= b0)
+    return true
+  { a0 b1 a1 }
+  elif (a0 < b1 & a1 >= b1)
+    return true
+  else
+    return false
+  end if
+end func
+
+{
+  削除する弾の選択
+  Collision()の衝突発生時コールバックの戻り値.
+  衝突によって削除される要素を選択.
+}
+enum DeletionRequest
+  None { どちらも削除しない. }
+  Left { 左側要素のみ削除. }
+  Right { 右側要素のみ削除. }
+  Both { 両方の要素を削除. }
+end enum
+
+{ 弾同士の当たり判定 }
+func Collision(lhs : @ShotList, rhs : @ShotList, f : func<(Actor@Actor, Actor@Actor) : @DeletionRequest>)
+  do lhs.shotList.Head()
+  while l(!lhs.shotList.ChkEnd())
+    var left : Actor@Actor :: lhs.shotList.Get()
+    var rectL : Main@Rect :: (##left.rect).AddPosition(left.position)
+    do rhs.shotList.Head()
+    while r(!rhs.shotList.ChkEnd())
+      var right : Actor@Actor :: rhs.shotList.Get()
+      var rectR : Main@Rect :: (##right.rect).AddPosition(right.position)
+      if (!@HasCollision(rectL.left, rectL.right, rectR.left, rectR.right))
+        do rhs.shotList.Next()
+        continue r
+      elif (!@HasCollision(rectL.top, rectL.bottom, rectR.top, rectR.bottom))
+        do rhs.shotList.Next()
+        continue r
+      end if
+      switch (f(left, right))
+      case (@DeletionRequest#None)
+        do rhs.shotList.Next()
+      case (@DeletionRequest#Left)
+        do lhs.shotList.Del()
+        continue l
+      case (@DeletionRequest#Right)
+        do rhs.shotList.Del()
+        continue r
+      case (@DeletionRequest#Both)
+        do lhs.shotList.Del()
+        do rhs.shotList.Del()
+        continue l
+      end switch
+    end while
+    do lhs.shotList.Next()
+  end while
 end func
