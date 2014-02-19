@@ -14,6 +14,18 @@
   return false
 end func
 
+-func HasCollision(a0 : float, a1 : float, b0 : float, b1 : float) : bool
+  { a0 b0 a1 }
+  if (a0 < b0 & a1 >= b0)
+    return true
+  { a0 b1 a1 }
+  elif (a0 < b1 & a1 >= b1)
+    return true
+  else
+    return false
+  end if
+end func
+
 { 動く物体の基本クラス }
 class Actor()
   var position : Main@Position
@@ -68,4 +80,86 @@ func Create(position : Main@Position, rect : Main@Rect) : @Actor
   do actor.Initialize(position, rect)
   return actor
 end func
+
+{ 動的物体リスト }
+class List()
+  var actorList : list<@Actor>
+
+  -+func Ctor()
+    do this.actorList :: #list<@Actor>
+  end func
+
+  { 走査が指している要素を取得する. }
+  func Get() : @Actor
+    return this.actorList.Get()
+  end func
+  { 要素を末尾に追加する. }
+  func Add(actor : @Actor)
+    do this.actorList.Add(actor)
+  end func
+  { 走査が指している要素を削除する. }
+  func Del()
+    do this.actorList.Del()
+  end func
+  { 走査位置を先頭に設定する. }
+  func Head()
+    do this.actorList.Head()
+  end func
+  { 走査位置を次に移動する. }
+  func Next()
+    do this.actorList.Next()
+  end func
+  { 走査が終端を超えた時にtrueを返す. }
+  func ChkEnd() : bool
+    return this.actorList.ChkEnd()
+  end func
+
+  {
+    削除する弾の選択
+    Collision()の衝突発生時コールバックの戻り値.
+    衝突によって削除される要素を選択.
+  }
+  enum DeletionRequest
+    None { どちらも削除しない. }
+    Left { 左側要素のみ削除. }
+    Right { 右側要素のみ削除. }
+    Both { 両方の要素を削除. }
+  end enum
+
+  { 弾同士の当たり判定 }
+  func Collision(rhs : @List, f : func<(@Actor, @Actor) : DeletionRequest>)
+    do this.actorList.Head()
+    while l(!this.actorList.ChkEnd())
+      var left : @Actor :: this.actorList.Get()
+      var rectL : Main@Rect :: (##left.rect).AddPosition(left.position)
+      do rhs.actorList.Head()
+      while r(!rhs.actorList.ChkEnd())
+        var right : @Actor :: rhs.actorList.Get()
+        var rectR : Main@Rect :: (##right.rect).AddPosition(right.position)
+        if (!@HasCollision(rectL.left, rectL.right, rectR.left, rectR.right))
+          do rhs.actorList.Next()
+          continue r
+        elif (!@HasCollision(rectL.top, rectL.bottom, rectR.top, rectR.bottom))
+          do rhs.actorList.Next()
+          continue r
+        end if
+        switch (f(left, right))
+        case (DeletionRequest#None)
+          do rhs.actorList.Next()
+        case (DeletionRequest#Left)
+          do this.actorList.Del()
+          continue l
+        case (DeletionRequest#Right)
+          do rhs.actorList.Del()
+          continue r
+        case (DeletionRequest#Both)
+          do this.actorList.Del()
+          do rhs.actorList.Del()
+          continue l
+        end switch
+      end while
+      do this.actorList.Next()
+    end while
+  end func
+end class
 
