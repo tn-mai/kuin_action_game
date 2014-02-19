@@ -22,59 +22,72 @@ class Enemy(Actor@Actor)
 end class
 
 { 出現敵リスト }
-var enemyList : list<@Enemy>
+class EnemyList()
+  var enemyList : list<@Enemy>
 
-{ 初期化 }
-func Initialize()
-  do @enemyList :: #list<@Enemy>
-end func
+  { 初期化 }
+  func Initialize()
+    do this.enemyList :: #list<@Enemy>
+  end func
 
-{ 敵出現 }
-func Add(position : Main@Position)
-  var enemy : @Enemy :: #@Enemy
-  var rect : Main@Rect :: Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
-  do (enemy $ Actor@Actor).Initialize(position, rect)
-  do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
-  do @enemyList.Add(enemy)
-end func
+  { 現在の出現数 }
+  func Len() : int
+    return this.enemyList.Len()
+  end func
 
-{ 敵リスト更新 }
-func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList)
-  do @enemyList.Head()
-  while (!@enemyList.ChkEnd())
-    var enemy : @Enemy :: @enemyList.Get()
-    do enemy.velocity.y  :+ Main@gravity
-    var result : Map@CollisionResult :: Map@Collision(enemy)
-    if (enemy.shotInterval > 0)
-      do enemy.shotInterval :- 1
-    else
-      var distanceX : float :: player.position.x - enemy.position.x
-      var distanceY : float :: player.position.y - enemy.position.y
-      if (Lib@Hypot(distanceX, distanceY) < @shotRange)
-        { kuinのラジアン 左=0.0 下=0.5pi 右 1.0pi 上 1.5pi }
-        var direction : float :: Lib@InvRot(distanceX, distanceY)
-        var pos : Main@Position :: ##enemy.position
-        do pos.y :+ (enemy.rect.top + enemy.rect.bottom) / 2.0
-        if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
-          do enemy.direction.Set(1.0, 0.0)
-          do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
-        elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
-          do enemy.direction.Set(-1.0, 0.0)
-          do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+  { 敵出現 }
+  func Add(position : Main@Position)
+    var enemy : @Enemy :: #@Enemy
+    var rect : Main@Rect :: Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
+    do (enemy $ Actor@Actor).Initialize(position, rect)
+    do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
+    do this.enemyList.Add(enemy)
+  end func
+
+  { 敵リスト更新 }
+  func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList)
+    do this.enemyList.Head()
+    while (!this.enemyList.ChkEnd())
+      var enemy : @Enemy :: this.enemyList.Get()
+      do enemy.velocity.y  :+ Main@gravity
+      var result : Map@CollisionResult :: Map@Collision(enemy)
+      if (enemy.shotInterval > 0)
+        do enemy.shotInterval :- 1
+      else
+        var distanceX : float :: player.position.x - enemy.position.x
+        var distanceY : float :: player.position.y - enemy.position.y
+        if (Lib@Hypot(distanceX, distanceY) < @shotRange)
+          { kuinのラジアン 左=0.0 下=0.5pi 右 1.0pi 上 1.5pi }
+          var direction : float :: Lib@InvRot(distanceX, distanceY)
+          var pos : Main@Position :: ##enemy.position
+          do pos.y :+ (enemy.rect.top + enemy.rect.bottom) / 2.0
+          if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
+            do enemy.direction.Set(1.0, 0.0)
+            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+          elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
+            do enemy.direction.Set(-1.0, 0.0)
+            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+          end if
         end if
+        do enemy.shotInterval :: @GetShotInterval()
       end if
-      do enemy.shotInterval :: @GetShotInterval()
-    end if
-    do @enemyList.Next()
-  end while
-end func
+      do this.enemyList.Next()
+    end while
+  end func
 
-{ 敵リスト描画 }
-func Draw(camera : Main@Position)
-  do @enemyList.Head()
-  while (!@enemyList.ChkEnd())
-    var enemy : @Enemy :: @enemyList.Get()
-    do enemy.Draw(camera)
-    do @enemyList.Next()
-  end while
+  { 敵リスト描画 }
+  func Draw(camera : Main@Position)
+    do this.enemyList.Head()
+    while (!this.enemyList.ChkEnd())
+      var enemy : @Enemy :: this.enemyList.Get()
+      do enemy.Draw(camera)
+      do this.enemyList.Next()
+    end while
+  end func
+end class
+
+func Create() : @EnemyList
+  var enemyList : @EnemyList :: #@EnemyList
+  do enemyList.Initialize()
+  return enemyList
 end func
