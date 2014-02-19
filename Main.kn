@@ -128,13 +128,12 @@ class Rect()
     return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
   end func
 
-  func Add(pos : @Position) : @Rect
-    var rect : @Rect :: ##this
-    do rect.left :+ pos.x
-    do rect.top :+ pos.y
-    do rect.right :+ pos.x
-    do rect.bottom :+ pos.y
-    return rect
+  func AddPosition(pos : @Position) : @Rect
+    do this.left :+ pos.x
+    do this.top :+ pos.y
+    do this.right :+ pos.x
+    do this.bottom :+ pos.y
+    return this
   end func
 end class
 
