@@ -5,6 +5,8 @@
 const width : float :: 100.0
 const height : float :: 160.0
 
+const shotSpeed : float :: 16.0
+
 const shotIntervalMin : int :: 20
 const shotIntervalMax : int :: 100
 const shotRange : float :: 800.0
@@ -55,10 +57,10 @@ func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@Shot
         do pos.y :+ (enemy.rect.top + enemy.rect.bottom) / 2.0
         if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
           do enemy.direction.Set(1.0, 0.0)
-          do shotList.Add(pos, (##enemy.direction).MulScalar(32.0))
+          do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
         elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
           do enemy.direction.Set(-1.0, 0.0)
-          do shotList.Add(pos, (##enemy.direction).MulScalar(32.0))
+          do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
         end if
       end if
       do enemy.shotInterval :: @GetShotInterval()
