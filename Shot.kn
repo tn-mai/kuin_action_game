@@ -46,7 +46,7 @@ class ShotList()
   end func
 end class
 
-func MakeShotList() : @ShotList
+func Create() : @ShotList
   var shotList : @ShotList :: #@ShotList
   do shotList.Initialize()
   return shotList
