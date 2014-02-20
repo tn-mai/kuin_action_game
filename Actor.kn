@@ -92,6 +92,10 @@ class List()
     do this.actorList :: #list<@Actor>
   end func
 
+  { 要素数を取得する. }
+  func Len() : int
+    return this.actorList.Len()
+  end func
   { 走査が指している要素を取得する. }
   func Get() : @Actor
     return this.actorList.Get()

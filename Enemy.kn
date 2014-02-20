@@ -23,11 +23,11 @@ end class
 
 { 出現敵リスト }
 class EnemyList()
-  var enemyList : list<@Enemy>
+  var enemyList : Actor@List
 
   { 初期化 }
   func Initialize()
-    do this.enemyList :: #list<@Enemy>
+    do this.enemyList :: #Actor@List
   end func
 
   { 現在の出現数 }
@@ -48,7 +48,7 @@ class EnemyList()
   func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList)
     do this.enemyList.Head()
     while (!this.enemyList.ChkEnd())
-      var enemy : @Enemy :: this.enemyList.Get()
+      var enemy : @Enemy :: this.enemyList.Get() $ @Enemy
       do enemy.velocity.y  :+ Main@gravity
       var result : Map@CollisionResult :: Map@Collision(enemy)
       if (enemy.shotInterval > 0)
@@ -79,7 +79,7 @@ class EnemyList()
   func Draw(camera : Main@Position)
     do this.enemyList.Head()
     while (!this.enemyList.ChkEnd())
-      var enemy : @Enemy :: this.enemyList.Get()
+      var enemy : @Enemy :: this.enemyList.Get() $ @Enemy
       do enemy.Draw(camera)
       do this.enemyList.Next()
     end while
