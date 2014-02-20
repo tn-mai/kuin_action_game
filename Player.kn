@@ -7,6 +7,11 @@ const height : float :: 160.0
 const renderOffsetX : float :: -(@width / 2.0)
 const renderOffsetY : float :: -@height
 
+class Player(Actor@Actor)
+  const maxHp : int :: 3
+  var hp : int
+end class
+
 { 範囲補正 }
 func Correct(n : &float, min : float, max : float) : bool
   if (n < min)
@@ -20,8 +25,15 @@ func Correct(n : &float, min : float, max : float) : bool
 end func
 
 { 初期化 }
-func Create(x : float, y : float) : Actor@Actor
-  return Actor@Create(Main@MakePosition(x, y), Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0))
+func Create(x : float, y : float) : @Player
+  const left : float :: -(@width * 0.8 / 2.0)
+  const top : float :: -(@height * 0.9)
+  const right : float :: @width * 0.8 / 2.0
+  const bottom : float :: 0.0
+  var player : @Player :: #@Player
+  do player.Initialize(Main@MakePosition(x, y), Main@MakeRect(left, top, right, bottom))
+  do player.hp :: @Player#maxHp
+  return player
 end func
 
 { 操作 }
