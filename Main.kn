@@ -303,7 +303,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   const enemyCount : int :: 600 { 敵発生間隔(フレーム数) }
   var enemyCounter : int { 敵発生間隔カウンタ }
 
-  while (Input@Pad(0, Input@EBtn#A) = 0)
+  while mainLoop()
     do Player@Action(resource, player, playerShotList)
     do playerShotList.Action(resource)
     do playerShotList.Collision(enemyShotList.shotList, ShotCollision)
@@ -347,6 +347,9 @@ func Game(resource : @Resource, status : @Status) : @Result
     do @DrawText(resource, @score.ToStr(), 100, 400, 0)
     do DrawPlayerHp(player)
 
+    if (player.hp <= 0)
+      break mainLoop
+    end if
     do Kuin@Act()
   end while
   return @Result#GameOver
