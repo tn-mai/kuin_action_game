@@ -9,7 +9,13 @@ const renderOffsetY : float :: -@height
 
 class Player(Actor@Actor)
   const maxHp : int :: 3
+  const invincibleFrames : int :: 2 * 60
   var hp : int
+  var invincibleCount : int
+
+  func IsInvincible() : bool
+    return this.invincibleCount > 0
+  end func
 end class
 
 { 範囲補正 }
@@ -33,11 +39,12 @@ func Create(x : float, y : float) : @Player
   var player : @Player :: #@Player
   do player.Initialize(Main@MakePosition(x, y), Main@MakeRect(left, top, right, bottom))
   do player.hp :: @Player#maxHp
+  do player.invincibleCount :: 0
   return player
 end func
 
 { 操作 }
-func Action(resource : Main@Resource, actor : Actor@Actor, shotList : Shot@ShotList)
+func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   { 左右移動 }
   const runVelocity : float :: 6.0
   const maxRunVelocity : float :: 16.0
@@ -95,11 +102,17 @@ func Action(resource : Main@Resource, actor : Actor@Actor, shotList : Shot@ShotL
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
   do @Correct(&actor.position.x, leftLimit, rightLimit)
+
+  if (actor.invincibleCount > 0)
+    do actor.invincibleCount :- 1
+  end if
 end func
 
 { 描画 }
-func Draw(actor : Actor@Actor, camera : Main@Position)
-  var x : float :: actor.position.x + @renderOffsetX - camera.x
-  var y : float :: actor.position.y + @renderOffsetY - camera.y
-  do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
+func Draw(actor : @Player, camera : Main@Position)
+  if (actor.invincibleCount % 2 = 0)
+    var x : float :: actor.position.x + @renderOffsetX - camera.x
+    var y : float :: actor.position.y + @renderOffsetY - camera.y
+    do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
+  end if
 end func

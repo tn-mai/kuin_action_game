@@ -261,6 +261,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     var player : Player@Player :: left $ Player@Player
     if (player.hp > 0)
       do player.hp :- 1
+      do player.invincibleCount :: Player@Player#invincibleFrames
     end if
     return Actor@List#DeletionRequest#Right
   end func
@@ -269,6 +270,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     var player : Player@Player :: left $ Player@Player
     if (player.hp > 0)
       do player.hp :- 1
+      do player.invincibleCount :: Player@Player#invincibleFrames
     end if
     return Actor@List#DeletionRequest#None
   end func
@@ -304,8 +306,10 @@ func Game(resource : @Resource, status : @Status) : @Result
 
     do enemyList.Action(resource, player, enemyShotList)
     do enemyShotList.Action(resource)
-    do playerList.Collision(enemyShotList.shotList, PlayerHitEnemyShot)
-    do playerList.Collision(enemyList.enemyList, PlayerHitEnemyShot)
+    if (!player.IsInvincible())
+      do playerList.Collision(enemyShotList.shotList, PlayerHitEnemyShot)
+      do playerList.Collision(enemyList.enemyList, PlayerHitEnemyShot)
+    end if
 
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
     if (player.position.x < camera.x + cameraForrowingRangeL)
