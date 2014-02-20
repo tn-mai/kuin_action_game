@@ -276,7 +276,12 @@ func Game(resource : @Resource, status : @Status) : @Result
   end func
   { プレイヤー体力の描画 }
   func DrawPlayerHp(player : Player@Player)
-    do Draw@Rect(10.0, 10.0, player.hp $ float * 80.0, 40.0, 0.5, 1.0, 0.5, 1.0)
+    for i(0, player.hp - 1)
+      const unitWidth : float :: 70.0
+      const margin : float :: 10.0
+      var left : float :: 10.0 + (unitWidth + margin) * (i $ float)
+      do Draw@Rect(left, 10.0, unitWidth, 40.0, 0.5, 1.0, 0.5, 1.0)
+    end for
   end func
 
   do @WaitForKeyReleased()
