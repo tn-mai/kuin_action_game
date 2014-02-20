@@ -67,7 +67,6 @@ func Action(resource : Main@Resource, actor : Actor@Actor, shotList : Shot@ShotL
     var pos : Main@Position :: ##actor.position
     do pos.y :+ (actor.rect.top + actor.rect.bottom) / 2.0
     do shotList.Add(pos, (##actor.direction).MulScalar(32.0))
-    do Dbg@Log("shot")
   end if
   { 重力制御 }
   do velocity.y  :+ Main@gravity
@@ -80,9 +79,6 @@ func Action(resource : Main@Resource, actor : Actor@Actor, shotList : Shot@ShotL
   do actor.velocity :: velocity
 
   var result : Map@CollisionResult :: Map@Collision(actor)
-  do Main@DrawText(resource, "x:" ~ result.isHitX.ToStr(), 32, 0, 0)
-  do Main@DrawText(resource, "y:" ~ result.isHitY.ToStr(), 32, 300, 0)
-  do Main@DrawText(resource, actor.velocity.ToStr(), 32, 0, 100)
 
   const leftLimit : float :: @width / 2.0
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
