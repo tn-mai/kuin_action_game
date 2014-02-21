@@ -10,6 +10,7 @@ const width : int :: 16 * 2
 const height : int :: 9
 
 var data : [][]char
+var tex : Draw@CTex
 
 func InitMap()
   do @data :: #[@height][]char
@@ -22,6 +23,8 @@ func InitMap()
   do @data[6] :: "........XX...XXX"~"XXXXXXX........."
   do @data[7] :: "....XX..XXXX...."~"....X.........XX"
   do @data[8] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
+
+  do @tex :: Draw@LoadTex("player.kntex")
 end func
 
 func DrawMap(camera : Main@Position)
@@ -42,7 +45,11 @@ func DrawMap(camera : Main@Position)
       if (@data[y][x] = 'X')
         var left : float :: (x $ float) * @blockW - camera.x
         var top : float :: (y $ float) * @blockH - camera.y
-        do Draw@Rect(left, top, @blockW, @blockH, 1.0, 1.0, 1.0, 1.0)
+        if (@tex =& null)
+          do Draw@Rect(left, top, @blockW, @blockH, 1.0, 1.0, 1.0, 1.0)
+        else
+          do @tex.Draw(0.0, 0.0, @blockW, @blockH, left, top, 1.0, 1.0, 1.0, 1.0)
+        end if
       end if
     end for
   end for
