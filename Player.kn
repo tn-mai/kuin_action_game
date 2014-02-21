@@ -12,9 +12,15 @@ class Player(Actor@Actor)
   const invincibleFrames : int :: 2 * 60
   var hp : int
   var invincibleCount : int
+  var animation : Animation@Animation
 
   func IsInvincible() : bool
     return this.invincibleCount > 0
+  end func
+end class
+
+class Test()
+  func Test(n : int)
   end func
 end class
 
@@ -40,6 +46,7 @@ func Create(x : float, y : float) : @Player
   do player.Initialize(Main@MakePosition(x, y), Main@MakeRect(left, top, right, bottom))
   do player.hp :: @Player#maxHp
   do player.invincibleCount :: 0
+  do player.animation :: (#Animation@Animation).Animation("player.kntex", Main@MakeRect(200.0, 100.0, 300.0, 300.0))
   return player
 end func
 
@@ -112,7 +119,7 @@ end func
 func Draw(actor : @Player, camera : Main@Position)
   if (actor.invincibleCount % 2 = 0)
     var x : float :: actor.position.x + @renderOffsetX - camera.x
-    var y : float :: actor.position.y + @renderOffsetY - camera.y
-    do Draw@Rect(x, y, @width, @height, 1.0, 0.0, 0.0, 1.0)
+    var y : float :: actor.position.y + @renderOffsetY - camera.y - 40.0
+    do actor.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0))
   end if
 end func

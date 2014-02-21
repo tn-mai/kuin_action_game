@@ -1,0 +1,27 @@
+{
+  アニメーション
+}
+
+class Animation()
+  var tex : Draw@CTex
+  var rect : Main@Rect
+
+  func Animation(path : []char, rect : Main@Rect) : @Animation
+    try
+      do this.tex :: Draw@LoadTex(path)
+    catch()
+      do Dbg@Log("can't load " ~ path)
+    end try
+    do this.rect :: rect
+    return this
+  end func
+
+  func Draw(x : float, y : float, color : Main@ColorRGBA)
+    var rect : Main@Rect :: this.rect
+    if (this.tex =& null)
+      do Draw@Rect(rect.left + x, rect.top + y, rect.right + x, rect.bottom + y, 1.0, 0.0, 0.0, 1.0)
+    else
+      do this.tex.Draw(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, x, y, color.r, color.g, color.b, color.a)
+    end if
+  end func
+end class
