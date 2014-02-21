@@ -291,8 +291,8 @@ func Game(resource : @Resource, status : @Status) : @Result
   var playerList : Actor@List :: #Actor@List
   do playerList.Add(player)
   do Map@InitMap()
-  var playerShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 140.0, 324.0, 160.0))
-  var enemyShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(324.0, 140.0, 344.0, 160.0))
+  var playerShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 100.0, 332.0, 116.0))
+  var enemyShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 116.0, 320.0, 132.0))
   var enemyList : Enemy@EnemyList :: Enemy@Create()
   do @score :: 0
 
