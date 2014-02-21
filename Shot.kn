@@ -4,16 +4,20 @@
 
 class ShotList()
   var shotList : Actor@List
+  var animation : Animation@Animation
 
   { 初期化 }
-  func Initialize()
+  func Initialize(path : []char, rect : Main@Rect)
     do this.shotList :: #Actor@List
+    do this.animation :: (#Animation@Animation).Animation(path, rect)
   end func
 
   { ショット発生 }
   func Add(position : Main@Position, velocity : Main@Vector2)
     var actor : Actor@Actor :: Actor@Create(position, Main@MakeRect(-16.0, -8.0, 16.0, 8.0))
     do actor.velocity :: ##velocity
+    do actor.direction.x :: velocity.x < 0.0 ?(-1.0, 1.0)
+    do actor.direction.y :: 0.0
     do this.shotList.Add(actor)
   end func
 
@@ -40,7 +44,7 @@ class ShotList()
       var shot : Actor@Actor :: this.shotList.Get()
       var x : float :: shot.position.x - 16.0 - camera.x
       var y : float :: shot.position.y - 8.0 - camera.y
-      do Draw@Rect(x, y, 32.0, 16.0, 1.0, 0.0, 1.0, 1.0)
+      do this.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0), shot.direction.x < 0.0 ?(Animation@Direction#Left, Animation@Direction#Right))
       do this.shotList.Next()
     end while
   end func
@@ -52,9 +56,9 @@ class ShotList()
 end class
 
 { 弾リストを作成する }
-func Create() : @ShotList
+func Create(path : []char, rect : Main@Rect) : @ShotList
   var shotList : @ShotList :: #@ShotList
-  do shotList.Initialize()
+  do shotList.Initialize(path, rect)
   return shotList
 end func
 
