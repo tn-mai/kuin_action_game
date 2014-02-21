@@ -40,6 +40,7 @@ class EnemyList()
     var enemy : @Enemy :: #@Enemy
     var rect : Main@Rect :: Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
     do (enemy $ Actor@Actor).Initialize(position, rect)
+    do enemy.shotInterval :: @shotIntervalMax
     do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
     do this.enemyList.Add(enemy)
   end func
