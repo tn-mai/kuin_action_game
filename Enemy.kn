@@ -61,7 +61,7 @@ class EnemyList()
           { kuinのラジアン 左=0.0 下=0.5pi 右 1.0pi 上 1.5pi }
           var direction : float :: Lib@InvRot(distanceX, distanceY)
           var pos : Main@Position :: ##enemy.position
-          do pos.y :+ (enemy.rect.top + enemy.rect.bottom) / 2.0
+          do pos.y :- (enemy.rect.bottom - enemy.rect.top) * 0.75
           if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
             do enemy.direction.Set(1.0, 0.0)
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
