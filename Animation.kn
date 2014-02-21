@@ -2,6 +2,11 @@
   アニメーション
 }
 
+enum Direction
+  Left
+  Right
+end enum
+
 class Animation()
   var tex : Draw@CTex
   var rect : Main@Rect
@@ -16,12 +21,20 @@ class Animation()
     return this
   end func
 
-  func Draw(x : float, y : float, color : Main@ColorRGBA)
+  func Draw(x : float, y : float, color : Main@ColorRGBA, dir : @Direction)
     var rect : Main@Rect :: this.rect
     if (this.tex =& null)
       do Draw@Rect(rect.left + x, rect.top + y, rect.right + x, rect.bottom + y, 1.0, 0.0, 0.0, 1.0)
     else
-      do this.tex.Draw(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, x, y, color.r, color.g, color.b, color.a)
+      var sw : float :: rect.right - rect.left
+      var sh : float :: rect.bottom - rect.top
+      var dw : float :: sw
+      var dh : float :: sh
+      if (dir = @Direction#Left)
+        do x :+ sw
+        do dw :* -1.0
+      end if
+      do this.tex.DrawScale(rect.left, rect.top, sw, sh, x, y, dw, dh, color.r, color.g, color.b, color.a)
     end if
   end func
 end class

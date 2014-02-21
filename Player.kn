@@ -120,6 +120,6 @@ func Draw(actor : @Player, camera : Main@Position)
   if (actor.invincibleCount % 2 = 0)
     var x : float :: actor.position.x + @renderOffsetX - camera.x
     var y : float :: actor.position.y + @renderOffsetY - camera.y - 40.0
-    do actor.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0))
+    do actor.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0), actor.direction.x < 0.0 ?(Animation@Direction#Left, Animation@Direction#Right))
   end if
 end func
