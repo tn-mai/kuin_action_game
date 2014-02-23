@@ -75,6 +75,10 @@ class Animation()
   end func
 
   func Update()
+    if (this.offset >= this.pictureList.Len())
+      do Dbg@Log("WARNING in Update(): animation offset violation.")
+      return
+    end if
     do this.frames :+ 1
     if (this.frames >= this.pictureList[this.offset].frames $ int)
       do this.frames :: 0
@@ -87,6 +91,10 @@ class Animation()
 
   func Draw(x : float, y : float)
     if (this.data =& null | this.tex =& null)
+      return
+    end if
+    if (this.offset >= this.pictureList.Len())
+      do Dbg@Log("WARNING in Draw(): animation offset violation.")
       return
     end if
     var pic : @Picture :: this.pictureList[this.offset]
@@ -130,7 +138,7 @@ func Load(path : []char) : @Data
   var data : @Data :: #@Data
   do data.textureName :: "player.kntex"
   do data.patternOffset :: [ 0, 1, 2, 6, 10, 11, 12, 13, 14, 15, 16, 17]int
-  do data.patternSize :: [ 1, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1]int
+  do data.patternSize ::   [ 1, 1, 4, 4,  1,  1,  1,  1,  1,  1,  1,  1]int
   do data.pictureList :: #[18]@Picture
   for i(0, 15)
     do data.pictureList[i] :: #@Picture
