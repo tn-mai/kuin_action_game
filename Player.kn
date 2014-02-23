@@ -4,8 +4,6 @@
 
 const width : float :: 100.0
 const height : float :: 160.0
-const renderOffsetX : float :: -(@width / 2.0)
-const renderOffsetY : float :: -@height
 
 class Player(Actor@Actor)
   const maxHp : int :: 3
@@ -84,12 +82,16 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
       do velocity.x :- runVelocity
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
+      end if
+      if (velocity.x.Abs() < 0.01)
         do animationIndex :: AnimationData@Action#StopR
       end if
     elif (velocity.x < 0.0)
       do velocity.x :+ runVelocity
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
+      end if
+      if (velocity.x.Abs() < 0.01)
         do animationIndex :: AnimationData@Action#StopL
       end if
     end if
@@ -129,6 +131,8 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
     else
       do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#FallL, AnimationData@Action#FallR)
     end if
+  elif (actor.velocity.x.Abs() < 0.001)
+    do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#StopL, AnimationData@Action#StopR)
   end if
   if (animationIndex $ int = actor.animation.index)
     do actor.animation.Update()
@@ -144,8 +148,8 @@ end func
 { 描画 }
 func Draw(actor : @Player, camera : Main@Position)
   if (actor.invincibleCount % 2 = 0)
-    var x : float :: actor.position.x + @renderOffsetX - camera.x
-    var y : float :: actor.position.y + @renderOffsetY - camera.y - 40.0
+    var x : float :: actor.position.x - camera.x
+    var y : float :: actor.position.y- camera.y - 40.0
     do actor.animation.Draw(x, y)
   end if
 end func
