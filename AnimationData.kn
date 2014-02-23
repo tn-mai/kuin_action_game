@@ -179,15 +179,15 @@ func Load(path : []char) : @Data
 
   var el : @Picture :: #@Picture
   do el.SetRect(100.0, 340.0, 200.0, 500.0)
-  do el.SetOffset(-50.0, -120.0)
+  do el.SetOffset(-50.0, -160.0)
   do el.frames :: 8 $ byte16
+  do el.flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#EnemyL $ int]] :: el
 
   var er : @Picture :: #@Picture
   do er.SetRect(100.0, 340.0, 200.0, 500.0)
   do er.SetOffset(-50.0, -160.0)
   do er.frames :: 8 $ byte16
-  do er.flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#EnemyR $ int]] :: er
 
   return data
