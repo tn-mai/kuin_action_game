@@ -133,7 +133,7 @@ func Load(path : []char) : @Data
   for i(0, 15)
     do data.pictureList[i] :: #@Picture
     do data.pictureList[i].SetRect(300.0, 140.0, 400.0, 300.0)
-    do data.pictureList[i].SetOffset(-50.0, -120.0)
+    do data.pictureList[i].SetOffset(-50.0, -160.0)
     do data.pictureList[i].rad :: 0.0
     do data.pictureList[i].frames :: 10 $ byte16
     do data.pictureList[i].flags :: 0 $ byte16

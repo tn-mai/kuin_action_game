@@ -149,7 +149,7 @@ end func
 func Draw(actor : @Player, camera : Main@Position)
   if (actor.invincibleCount % 2 = 0)
     var x : float :: actor.position.x - camera.x
-    var y : float :: actor.position.y- camera.y - 40.0
+    var y : float :: actor.position.y - camera.y
     do actor.animation.Draw(x, y)
   end if
 end func
