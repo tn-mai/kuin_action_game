@@ -15,13 +15,13 @@ var tex : Draw@CTex
 func InitMap()
   do @data :: #[@height][]char
   do @data[0] :: "................"~"................"
-  do @data[1] :: "................"~"..........XX...."
-  do @data[2] :: ".......XX......."~"....XXXX..XXXXXX"
-  do @data[3] :: "..........XXX..."~"....XXXX........"
-  do @data[4] :: ".............XXX"~"..XXX...X......."
-  do @data[5] :: "................"~"....X...XXXX...."
-  do @data[6] :: "........XX...XXX"~"XXXXXXX........."
-  do @data[7] :: "....XX..XXXX...."~"....X.........XX"
+  do @data[1] :: ".......X........"~"...........XX..."
+  do @data[2] :: ".......X........"~"....XXX.....XXXX"
+  do @data[3] :: ".......XXX......"~"....XXXX........"
+  do @data[4] :: "................"~"..XXX...X......."
+  do @data[5] :: "............XXXX"~"XXX.X...XXXX...."
+  do @data[6] :: "........XX......"~"....X..........."
+  do @data[7] :: "......XXXXX....."~"....X.........XX"
   do @data[8] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
 
   do @tex :: Draw@LoadTex("player.kntex")
