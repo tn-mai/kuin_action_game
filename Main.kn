@@ -227,6 +227,61 @@ class Resource()
   end func
 end class
 
+{ 簡易フォント描画 }
+func DrawText(resource : @Resource, text : []char, size : int, x : int, y : int)
+  var texture : Draw@CTex :: resource.Font().MakeTex(size, text, 16)
+  do texture.Draw(0.0, 0.0, texture.Width(), texture.Height(), x $ float, y $ float, 1.0, 1.0, 1.0, 1.0)
+end func
+
+{ キー解除待ち }
+func WaitForKeyReleased()
+  while (Input@Pad(0, Input@EBtn#A) > 0)
+    do Kuin@Act()
+  end while
+end func
+
+{
+  パフォーマンスカウンタ
+}
+class Perf()
+  var offset : int
+  var times : []int
+  var colors : []@ColorRGBA
+  -+func Ctor()
+    do this.offset :: 0
+    do this.times :: #[16]int
+    do this.colors :: #[16]@ColorRGBA
+    for i(0, 15)
+      do this.colors[i] :: #@ColorRGBA
+    end for
+  end func
+  func Init()
+    do this.times[0] :: Time@Sys()
+    do this.offset :: 1
+  end func
+  func Set(color : @ColorRGBA)
+    if (this.offset >= 16)
+      return
+    end if
+    do this.times[this.offset] :: Time@Sys()
+    do this.colors[this.offset] :: color
+    do this.offset :+ 1
+  end func
+  func Draw(x : float, y : float, w : float, h : float, resource : @Resource)
+    const unitFrame : float :: 1000.0 / 60.0
+    var left : float :: x
+    for i(1, this.offset - 1)
+      var unit : int :: this.times[i] - this.times[i - 1]
+      var len : float :: (w * unit $ float) / unitFrame
+      var col : @ColorRGBA :: this.colors[i]
+      do Draw@Rect(left, y, len, h, col.r, col.g, col.b, col.a)
+      do left :+ len
+    end for
+    do Draw@Rect(left, y, w - left, h, 1.0, 1.0, 1.0, 0.25)
+    do resource.DrawAscii(x, y, 0.5, @AsciiFontEdge#Edge, Kuin@FPS().ToStr())
+  end func
+end class
+
 {
  エントリポイント
 }
@@ -246,19 +301,6 @@ func Main()
     end switch
   end while
 end func 
-
-{ 簡易フォント描画 }
-func DrawText(resource : @Resource, text : []char, size : int, x : int, y : int)
-  var texture : Draw@CTex :: resource.Font().MakeTex(size, text, 16)
-  do texture.Draw(0.0, 0.0, texture.Width(), texture.Height(), x $ float, y $ float, 1.0, 1.0, 1.0, 1.0)
-end func
-
-{ キー解除待ち }
-func WaitForKeyReleased()
-  while (Input@Pad(0, Input@EBtn#A) > 0)
-    do Kuin@Act()
-  end while
-end func
 
 {
   タイトル画面
@@ -327,6 +369,13 @@ func Game(resource : @Resource, status : @Status) : @Result
   var background : Draw@CTex :: Draw@LoadTex("sunset.kntex")
   do @score :: 0
 
+  var perf : @Perf :: #@Perf
+  var perfColPlayerAct     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 0.0, 0.8)
+  var perfColEnemyAct      : @ColorRGBA :: @MakeColorRGBA(0.0, 1.0, 0.0, 0.8)
+  var perfColMapDraw       : @ColorRGBA :: @MakeColorRGBA(0.0, 0.0, 1.0, 0.8)
+  var perfColCharacterDraw : @ColorRGBA :: @MakeColorRGBA(1.0, 1.0, 0.0, 0.8)
+  var perfColOtherDraw     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 1.0, 0.8)
+
   for i(0, 5)
     do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
   end for
@@ -335,10 +384,14 @@ func Game(resource : @Resource, status : @Status) : @Result
   var enemyCounter : int { 敵発生間隔カウンタ }
 
   while mainLoop()
+    do perf.Init()
+
     do Player@Action(resource, player, playerShotList)
     do playerShotList.Action(resource)
     do playerShotList.Collision(enemyShotList.shotList, ShotCollision)
     do playerShotList.Collision(enemyList.enemyList, EnemyCollision)
+
+    do perf.Set(perfColPlayerAct)
 
     do enemyList.Action(resource, player, enemyShotList)
     do enemyShotList.Action(resource)
@@ -370,14 +423,25 @@ func Game(resource : @Resource, status : @Status) : @Result
       do enemyCounter :- 1
     end if
 
+    do perf.Set(perfColEnemyAct)
+
     do background.DrawScale(0.0, 0.0, 1024.0, 512.0, 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
     do Map@DrawMap(camera)
+
+    do perf.Set(perfColMapDraw)
+
     do enemyList.Draw(camera)
     do Player@Draw(player, camera)
     do playerShotList.Draw(camera)
     do enemyShotList.Draw(camera)
+
+    do perf.Set(perfColCharacterDraw)
+
     do resource.DrawAscii(400.0, 10.0, 1.0, @AsciiFontEdge#Edge, @score.ToStr())
     do DrawPlayerHp(player)
+
+    do perf.Set(perfColOtherDraw)
+    do perf.Draw(20.0, 820.0, 400.0, 40.0, resource)
 
     if (player.hp <= 0)
       break mainLoop
