@@ -398,7 +398,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     do enemyShotList.Action(resource)
     if (!player.IsInvincible())
       do playerList.Collision(enemyShotList.shotList, PlayerHitEnemyShot)
-      do playerList.Collision(enemyList.enemyList, PlayerHitEnemyShot)
+      do playerList.Collision(enemyList.enemyList, PlayerHitEnemy)
     end if
 
     const cameraForrowingRangeL : float :: Map@viewW / 4.0
