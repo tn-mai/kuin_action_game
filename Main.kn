@@ -362,6 +362,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   var player : Player@Player :: Player@Create(400.0, 800.0)
   var playerList : Actor@List :: #Actor@List
   do playerList.Add(player)
+  do player.invincibleCount :: Player@Player#invincibleFrames
   do Map@InitMap()
   var playerShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 100.0, 332.0, 116.0))
   var enemyShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 116.0, 320.0, 132.0))
