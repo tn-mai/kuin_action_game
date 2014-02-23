@@ -188,7 +188,7 @@ func Load(path : []char) : @Data
   do er.SetOffset(-50.0, -160.0)
   do er.frames :: 8 $ byte16
   do er.flags :: @Flag#FlipH $ byte16
-  do data.pictureList[data.patternOffset[@Action#EnemyL $ int]] :: er
+  do data.pictureList[data.patternOffset[@Action#EnemyR $ int]] :: er
 
   return data
 end func
