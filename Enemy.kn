@@ -19,7 +19,19 @@ end func
 { 敵クラス }
 class Enemy(Actor@Actor)
   var shotInterval : int
+  var killed : bool
+  var fadeCount : int
   var animation : AnimationData@Animation
+
+  func Damaged()
+    if (!this.killed)
+      do this.hasCollision :: false
+      do this.killed :: true
+      do this.fadeCount :: 60
+      do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
+      do this.velocity.x :: this.direction.x * -1.0
+    end if
+  end func
 end class
 
 { 出現敵リスト }
@@ -51,6 +63,7 @@ class EnemyList()
     do (enemy $ Actor@Actor).Initialize(position, rect)
     do enemy.shotInterval :: @shotIntervalMax
     do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, AnimationData@Action#EnemyL $ int)
+    do enemy.direction.Set(-1.0, 0.0)
     do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
     do this.enemyList.Add(enemy)
   end func
@@ -58,11 +71,22 @@ class EnemyList()
   { 敵リスト更新 }
   func Action(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList)
     do this.enemyList.Head()
-    while (!this.enemyList.ChkEnd())
+    while loop(!this.enemyList.ChkEnd())
       var enemy : @Enemy :: this.enemyList.Get() $ @Enemy
-      var animationIndex : int :: enemy.animation.index
       do enemy.velocity.y  :+ Main@gravity
       var result : Map@CollisionResult :: Map@Collision(enemy)
+      { 死んでいた時の処理 }
+      if (enemy.killed)
+        do enemy.fadeCount :- 1
+        if (enemy.fadeCount < 0)
+          do this.enemyList.Del()
+        else
+          do this.enemyList.Next()
+        end if
+        continue loop
+      end if
+
+      var animationIndex : int :: enemy.animation.index
       if (enemy.shotInterval > 0)
         do enemy.shotInterval :- 1
       else

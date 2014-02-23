@@ -132,14 +132,16 @@ enum Action
   ShotR
   EnemyL
   EnemyR
+  EnemyHitL
+  EnemyHitR
 end enum
 
 func Load(path : []char) : @Data
   var data : @Data :: #@Data
   do data.textureName :: "player.kntex"
-  do data.patternOffset :: [ 0, 1, 2, 6, 10, 11, 12, 13, 14, 15, 16, 17]int
-  do data.patternSize ::   [ 1, 1, 4, 4,  1,  1,  1,  1,  1,  1,  1,  1]int
-  do data.pictureList :: #[18]@Picture
+  do data.patternOffset :: [ 0, 1, 2, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]int
+  do data.patternSize ::   [ 1, 1, 4, 4,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]int
+  do data.pictureList :: #[20]@Picture
   for i(0, 15)
     do data.pictureList[i] :: #@Picture
     do data.pictureList[i].SetRect(300.0, 140.0, 400.0, 300.0)
@@ -189,6 +191,19 @@ func Load(path : []char) : @Data
   do er.SetOffset(-50.0, -160.0)
   do er.frames :: 8 $ byte16
   do data.pictureList[data.patternOffset[@Action#EnemyR $ int]] :: er
+
+  var ehl : @Picture :: #@Picture
+  do ehl.SetRect(200.0, 340.0, 300.0, 500.0)
+  do ehl.SetOffset(-50.0, -160.0)
+  do ehl.frames :: 8 $ byte16
+  do ehl.flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#EnemyHitL $ int]] :: ehl
+
+  var ehr : @Picture :: #@Picture
+  do ehr.SetRect(200.0, 340.0, 300.0, 500.0)
+  do ehr.SetOffset(-50.0, -160.0)
+  do ehr.frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#EnemyHitR $ int]] :: ehr
 
   return data
 end func

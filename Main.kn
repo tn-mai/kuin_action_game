@@ -326,7 +326,8 @@ func Game(resource : @Resource, status : @Status) : @Result
   { プレイヤー弾と敵が衝突したときの処理 }
   func EnemyCollision(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
     do @score :+ 100
-    return Actor@List#DeletionRequest#Both
+    do (right $ Enemy@Enemy).Damaged()
+    return Actor@List#DeletionRequest#Left
   end func
   { プレイヤーと敵弾が衝突した時の処理 }
   func PlayerHitEnemyShot(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
