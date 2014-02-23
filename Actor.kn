@@ -36,6 +36,7 @@ class Actor()
   var velocity : Main@Vector2
   var direction : Main@Vector2
   var color : Main@ColorRGBA
+  var hasCollision : bool
 
   func Initialize(position : Main@Position, rect : Main@Rect)
     do this.position :: ##position
@@ -43,6 +44,7 @@ class Actor()
     do this.velocity :: #Main@Vector2
     do this.direction :: Main@MakeVector2(1.0, 0.0)
     do this.color :: Main@MakeColorRGBA(0.5, 0.5, 0.5, 1.0)
+    do this.hasCollision :: true
   end func
 
   func Draw(position : Main@Position)
@@ -133,15 +135,23 @@ class List()
     Both { 両方の要素を削除. }
   end enum
 
-  { 弾同士の当たり判定 }
+  { 当たり判定 }
   func Collision(rhs : @List, f : func<(@Actor, @Actor) : DeletionRequest>)
     do this.actorList.Head()
     while l(!this.actorList.ChkEnd())
       var left : @Actor :: this.actorList.Get()
+      if (!left.hasCollision)
+        do this.actorList.Next()
+        continue l
+      end if
       var rectL : Main@Rect :: (##left.rect).AddPosition(left.position)
       do rhs.actorList.Head()
       while r(!rhs.actorList.ChkEnd())
         var right : @Actor :: rhs.actorList.Get()
+        if (!right.hasCollision)
+          do rhs.actorList.Next()
+          continue r
+        end if
         var rectR : Main@Rect :: (##right.rect).AddPosition(right.position)
         if (!@HasCollision(rectL.left, rectL.right, rectR.left, rectR.right))
           do rhs.actorList.Next()
