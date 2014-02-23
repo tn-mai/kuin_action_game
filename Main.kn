@@ -184,18 +184,48 @@ class Status()
   end func
 end class
 
+enum AsciiFontEdge
+  None
+  Edge
+end enum
+
 {
   リソース
 }
 class Resource()
+  var font : Draw@CFont
+  var asciiTex : Draw@CTex
+
   func Init()
-    do @font :: Draw@LoadFont("ume-ugo5.ttf")
+    try
+    do this.font :: Draw@LoadFont("ume-ugo5.ttf")
+    catch()
+      do Dbg@Log("ERROR in Resource@Init(): Can't load font")
+    end try
+    try
+    do this.asciiTex:: Draw@LoadTex("ascii.kntex")
+    catch()
+      do Dbg@Log("ERROR in Resource@Init(): Can't load texture font")
+    end try
   end func
   func Font() : Draw@CFont
-    return @font
+    return this.font
+  end func
+  func DrawAscii(x : float, y : float, scale : float, edge : @AsciiFontEdge, text : []char)
+    const width : float :: 32.0
+    const height : float :: 64.0
+    if (this.asciiTex =& null)
+      return
+    end if
+    var offsetY : float :: (edge = @AsciiFontEdge#Edge) ?(512.0, 0.0)
+    foreach i(text)
+      var left : float :: ((i $ int % 16) * 32) $ float
+      var top : float :: ((i $ int / 16) * 64) $ float + offsetY
+      do this.asciiTex.DrawScale(left, top, 32.0, 64.0, x, y, 32.0 * scale, 64.0 * scale, 1.0, 1.0, 1.0, 1.0)
+      do x :+ 32.0 * scale
+    end foreach
   end func
 end class
-var font : Draw@CFont
 
 {
  エントリポイント
@@ -346,7 +376,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     do Player@Draw(player, camera)
     do playerShotList.Draw(camera)
     do enemyShotList.Draw(camera)
-    do @DrawText(resource, @score.ToStr(), 100, 400, 0)
+    do resource.DrawAscii(400.0, 10.0, 1.0, @AsciiFontEdge#Edge, @score.ToStr())
     do DrawPlayerHp(player)
 
     if (player.hp <= 0)
