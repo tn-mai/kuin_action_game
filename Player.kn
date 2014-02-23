@@ -83,17 +83,14 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
       end if
-      if (velocity.x.Abs() < 0.01)
-        do animationIndex :: AnimationData@Action#StopR
-      end if
     elif (velocity.x < 0.0)
       do velocity.x :+ runVelocity
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
       end if
-      if (velocity.x.Abs() < 0.01)
-        do animationIndex :: AnimationData@Action#StopL
-      end if
+    end if
+    if (velocity.x.Abs() < 0.01)
+      do animationIndex :: animationIndex $ int % 2 = 0 ?(AnimationData@Action#StopL, AnimationData@Action#StopR)
     end if
   end if
 
