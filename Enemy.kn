@@ -60,6 +60,7 @@ class EnemyList()
     do this.enemyList.Head()
     while (!this.enemyList.ChkEnd())
       var enemy : @Enemy :: this.enemyList.Get() $ @Enemy
+      var animationIndex : int :: enemy.animation.index
       do enemy.velocity.y  :+ Main@gravity
       var result : Map@CollisionResult :: Map@Collision(enemy)
       if (enemy.shotInterval > 0)
@@ -74,15 +75,19 @@ class EnemyList()
           do pos.y :- (enemy.rect.bottom - enemy.rect.top) * 0.75
           if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
             do enemy.direction.Set(1.0, 0.0)
-            do enemy.animation.Set(AnimationData@Action#EnemyL $ int)
+            do animationIndex :: AnimationData@Action#EnemyR $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
           elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
             do enemy.direction.Set(-1.0, 0.0)
-            do enemy.animation.Set(AnimationData@Action#EnemyR $ int)
+            do animationIndex :: AnimationData@Action#EnemyL $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
           end if
         end if
         do enemy.shotInterval :: @GetShotInterval()
+      end if
+      if (animationIndex <> enemy.animation.index)
+        do enemy.animation.Set(animationIndex)
+      else
         do enemy.animation.Update()
       end if
       do this.enemyList.Next()
