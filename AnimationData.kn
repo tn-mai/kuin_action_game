@@ -1,0 +1,135 @@
+{
+  アニメーションデータ
+
+  テクスチャ名, [ 枚数, { 範囲, 反転フラグ, 回転, オフセット, フレーム数 }, ... ], ...
+}
+
+enum Flag
+  FlipH :: 1
+  FlipV :: 2
+  Loop :: 4
+end enum
+
+class Picture()
+  var left : float
+  var top : float
+  var right : float
+  var bottom : float
+  var x : float
+  var y : float
+  var rad : float
+  var frames : byte16
+  var flags : byte16
+
+  func SetRect(left : float, top : float, right : float, bottom : float)
+    do this.left :: left
+    do this.top :: top
+    do this.right :: right
+    do this.bottom :: bottom
+  end func
+  func SetPosition(x : float, y : float)
+    do this.x :: x
+    do this.y :: y
+  end func
+end class
+
+class Data()
+  var textureName : []char
+  var patternOffset : []int
+  var patternSize : []int
+  var pictureList : []@Picture
+
+  func GetPatterns(index : int) : []@Picture
+    return this.pictureList.Sub(this.patternOffset[index], this.patternSize[index])
+  end func
+end class
+
+class Renderer()
+  var index : int
+  var frames : int
+  var pictureList : []@Picture
+  var tex : Draw@CTex
+
+  func Renderer(tex : Draw@CTex, pl : []@Picture)
+    do this.index :: 0
+    do this.frames :: 0
+    do this.pictureList :: pl
+    do this.tex :: tex
+  end func
+
+  func Update()
+    do this.frames :+ 1
+    if (this.frames >= this.pictureList[this.index].frames $ int)
+      do this.frames :: 0
+      do this.index :+ 1
+      if (this.index >= this.pictureList.Len())
+        do this.index :: 0
+      end if
+    end if
+  end func
+
+  func Draw(x : float, y : float)
+    var pic : @Picture :: this.pictureList[this.index]
+    var sw : float :: pic.right - pic.left
+    var sh : float :: pic.bottom - pic.top
+    var dw : float :: sw
+    var dh : float :: sh
+    if (pic.flags.And(@Flag#FlipH $ byte16) $ int > 0)
+      do x :+ sw
+      do dw :* -1.0
+    end if
+    do this.tex.DrawScale(pic.left, pic.top, sw, sh, x, y, dw, dh, 1.0, 1.0, 1.0, 1.0)
+  end func
+end class
+
+enum Action
+  StopL
+  StopR
+  RunL
+  RunR
+  JumpL
+  JumpR
+  FallL
+  FallR
+  ShotL
+  ShotR
+end enum
+
+func Initialize() : @Data
+  var data : @Data :: #@Data
+  do data.textureName :: "player.kntex"
+  do data.patternOffset :: [ 0, 1, 2, 6, 10, 11, 12, 13, 14, 15]int
+  do data.patternSize :: [ 1, 1, 4, 4, 1, 1, 1, 1, 1, 1]int
+  do data.pictureList :: #[10]@Picture
+  for i(0, 15)
+    do data.pictureList[i].SetRect(200.0, 100.0, 300.0, 300.0)
+    do data.pictureList[i].SetPosition(0.0, 0.0)
+    do data.pictureList[i].rad :: 0.0
+    do data.pictureList[i].frames :: 10 $ byte16
+    do data.pictureList[i].flags :: 0 $ byte16
+  end for
+  do data.pictureList[data.patternOffset[@Action#StopL $ int]].flags :: @Flag#FlipH $ byte16
+
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].SetRect(300.0, 140.0, 400.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].SetRect(400.0, 140.0, 500.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].SetRect(500.0, 140.0, 600.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].SetRect(600.0, 140.0, 700.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].frames :: 8 $ byte16
+
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 0].SetRect(300.0, 140.0, 400.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 0].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 1].SetRect(400.0, 140.0, 500.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 1].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 2].SetRect(500.0, 140.0, 600.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 2].frames :: 8 $ byte16
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 3].SetRect(600.0, 140.0, 700.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 3].frames :: 8 $ byte16
+  return data
+end func
