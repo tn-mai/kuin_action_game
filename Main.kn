@@ -419,7 +419,15 @@ func Game(resource : @Resource, status : @Status) : @Result
 
     if (enemyList.Len() < 10 & enemyCounter <= 0)
       do enemyCounter :: 10 * 60
-      do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
+      var additionNumber : int
+      if ( enemyList.Len() >= 8)
+        do additionNumber :: 10 - enemyList.Len()
+      else
+        do additionNumber :: Rnd@Get(2, enemyList.Len() >= 5 ?(10 - enemyList.Len(), 5))
+      end if
+      for (1, additionNumber)
+        do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height / 4) $ float * Map@blockH))
+      end for
     elif (enemyCounter > 0)
       do enemyCounter :- 1
     end if
