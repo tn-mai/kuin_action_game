@@ -5,6 +5,7 @@
 }
 
 enum Flag
+  None :: 0
   FlipH :: 1
   FlipV :: 2
   Loop :: 4
@@ -27,7 +28,7 @@ class Picture()
     do this.right :: right
     do this.bottom :: bottom
   end func
-  func SetPosition(x : float, y : float)
+  func SetOffset(x : float, y : float)
     do this.x :: x
     do this.y :: y
   end func
@@ -92,6 +93,8 @@ class Animation()
     if (pic =& null)
       return
     end if
+    do x :+ pic.x
+    do y :+ pic.y
     var sw : float :: pic.right - pic.left
     var sh : float :: pic.bottom - pic.top
     var dw : float :: sw
@@ -129,13 +132,18 @@ func Load(path : []char) : @Data
   do data.pictureList :: #[16]@Picture
   for i(0, 15)
     do data.pictureList[i] :: #@Picture
-    do data.pictureList[i].SetRect(200.0, 100.0, 300.0, 300.0)
-    do data.pictureList[i].SetPosition(0.0, 0.0)
+    do data.pictureList[i].SetRect(300.0, 140.0, 400.0, 300.0)
+    do data.pictureList[i].SetOffset(-50.0, -120.0)
     do data.pictureList[i].rad :: 0.0
     do data.pictureList[i].frames :: 10 $ byte16
     do data.pictureList[i].flags :: 0 $ byte16
   end for
+  do data.pictureList[data.patternOffset[@Action#StopR $ int] + 0].SetRect(200.0, 140.0, 300.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#StopL $ int] + 0].SetRect(200.0, 140.0, 300.0, 300.0)
   do data.pictureList[data.patternOffset[@Action#StopL $ int]].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#JumpL $ int]].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#FallL $ int]].flags :: @Flag#FlipH $ byte16
+  do data.pictureList[data.patternOffset[@Action#ShotL $ int]].flags :: @Flag#FlipH $ byte16
 
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].SetRect(300.0, 140.0, 400.0, 300.0)
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].flags :: @Flag#FlipH $ byte16
