@@ -12,7 +12,9 @@ class Player(Actor@Actor)
   const invincibleFrames : int :: 2 * 60
   var hp : int
   var invincibleCount : int
-  var animation : Animation@Animation
+  var animationData : AnimationData@Data
+  var texture : Draw@CTex
+  var animation : AnimationData@Animation
 
   func IsInvincible() : bool
     return this.invincibleCount > 0
@@ -46,7 +48,13 @@ func Create(x : float, y : float) : @Player
   do player.Initialize(Main@MakePosition(x, y), Main@MakeRect(left, top, right, bottom))
   do player.hp :: @Player#maxHp
   do player.invincibleCount :: 0
-  do player.animation :: (#Animation@Animation).Animation("player.kntex", Main@MakeRect(200.0, 100.0, 300.0, 300.0))
+  try
+  do player.animationData :: AnimationData@Load("player.knanm")
+  do player.texture :: Draw@LoadTex(player.animationData.textureName)
+  do player.animation :: AnimationData@MakeAnimation(player.animationData, player.texture, AnimationData@Action#StopR $ int)
+  catch()
+    do Dbg@Log("ERROR: Can't load player data")
+  end try
   return player
 end func
 
@@ -55,6 +63,7 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   { 左右移動 }
   const runVelocity : float :: 6.0
   const maxRunVelocity : float :: 16.0
+  var animationIndex : AnimationData@Action :: actor.animation.index $ AnimationData@Action
   var velocity : Main@Vector2 :: ##actor.velocity
   if (Input@Pad(0, Input@EBtn#Left) > 0)
     do actor.direction :: Main@MakeVector2(-1.0, 0.0)
@@ -62,22 +71,26 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
     if (velocity.x < -maxRunVelocity)
       do velocity.x :: -maxRunVelocity
     end if
+    do animationIndex :: AnimationData@Action#RunL
   elif (Input@Pad(0, Input@EBtn#Right) > 0)
     do actor.direction :: Main@MakeVector2(1.0, 0.0)
     do velocity.x :+ runVelocity
     if (velocity.x > maxRunVelocity)
       do velocity.x :: maxRunVelocity
     end if
+    do animationIndex :: AnimationData@Action#RunR
   else
     if (velocity.x > 0.0)
       do velocity.x :- runVelocity
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
+        do animationIndex :: AnimationData@Action#StopR
       end if
     elif (velocity.x < 0.0)
       do velocity.x :+ runVelocity
       if (velocity.x < 0.0)
         do velocity.x :: 0.0
+        do animationIndex :: AnimationData@Action#StopL
       end if
     end if
   end if
@@ -110,6 +123,19 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
   do @Correct(&actor.position.x, leftLimit, rightLimit)
 
+  if (!result.isHitY)
+    if (actor.velocity.y > 0.0) 
+      do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#JumpL, AnimationData@Action#JumpR)
+    else
+      do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#FallL, AnimationData@Action#FallR)
+    end if
+  end if
+  if (animationIndex $ int = actor.animation.index)
+    do actor.animation.Update()
+  else
+    do actor.animation.Set(animationIndex $ int)
+  end if
+
   if (actor.invincibleCount > 0)
     do actor.invincibleCount :- 1
   end if
@@ -120,6 +146,6 @@ func Draw(actor : @Player, camera : Main@Position)
   if (actor.invincibleCount % 2 = 0)
     var x : float :: actor.position.x + @renderOffsetX - camera.x
     var y : float :: actor.position.y + @renderOffsetY - camera.y - 40.0
-    do actor.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0), actor.direction.x < 0.0 ?(Animation@Direction#Left, Animation@Direction#Right))
+    do actor.animation.Draw(x, y)
   end if
 end func

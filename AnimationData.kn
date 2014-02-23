@@ -44,32 +44,54 @@ class Data()
   end func
 end class
 
-class Renderer()
-  var index : int
-  var frames : int
-  var pictureList : []@Picture
+class Animation()
+  var data : @Data
   var tex : Draw@CTex
+  var pictureList : []@Picture
+  var index :int
+  var offset : int
+  var frames : int
 
-  func Renderer(tex : Draw@CTex, pl : []@Picture)
-    do this.index :: 0
-    do this.frames :: 0
-    do this.pictureList :: pl
+  func Animation(data : @Data, tex : Draw@CTex, index : int) : @Animation
+    do this.data :: data
     do this.tex :: tex
+    do this.pictureList :: null
+    do this.index :: 0
+    do this.offset :: 0
+    do this.frames :: 0
+    do this.Set(index)
+    return this
+  end func
+
+  func Set(index : int)
+    if (index < 0 | index >= this.data.patternOffset.Len())
+      return
+    end if
+    do this.pictureList :: this.data.pictureList.Sub(this.data.patternOffset[index], this.data.patternSize[index])
+    do this.index :: index
+    do this.offset :: 0
+    do this.frames :: 0
   end func
 
   func Update()
     do this.frames :+ 1
-    if (this.frames >= this.pictureList[this.index].frames $ int)
+    if (this.frames >= this.pictureList[this.offset].frames $ int)
       do this.frames :: 0
-      do this.index :+ 1
-      if (this.index >= this.pictureList.Len())
-        do this.index :: 0
+      do this.offset :+ 1
+      if (this.offset >= this.pictureList.Len())
+        do this.offset :: 0
       end if
     end if
   end func
 
   func Draw(x : float, y : float)
-    var pic : @Picture :: this.pictureList[this.index]
+    if (this.data =& null | this.tex =& null)
+      return
+    end if
+    var pic : @Picture :: this.pictureList[this.offset]
+    if (pic =& null)
+      return
+    end if
     var sw : float :: pic.right - pic.left
     var sh : float :: pic.bottom - pic.top
     var dw : float :: sw
@@ -81,6 +103,10 @@ class Renderer()
     do this.tex.DrawScale(pic.left, pic.top, sw, sh, x, y, dw, dh, 1.0, 1.0, 1.0, 1.0)
   end func
 end class
+
+func MakeAnimation(data : @Data, tex : Draw@CTex, index : int) : @Animation
+  return (#@Animation).Animation(data, tex, index)
+end func
 
 enum Action
   StopL
@@ -95,13 +121,14 @@ enum Action
   ShotR
 end enum
 
-func Initialize() : @Data
+func Load(path : []char) : @Data
   var data : @Data :: #@Data
   do data.textureName :: "player.kntex"
   do data.patternOffset :: [ 0, 1, 2, 6, 10, 11, 12, 13, 14, 15]int
   do data.patternSize :: [ 1, 1, 4, 4, 1, 1, 1, 1, 1, 1]int
-  do data.pictureList :: #[10]@Picture
+  do data.pictureList :: #[16]@Picture
   for i(0, 15)
+    do data.pictureList[i] :: #@Picture
     do data.pictureList[i].SetRect(200.0, 100.0, 300.0, 300.0)
     do data.pictureList[i].SetPosition(0.0, 0.0)
     do data.pictureList[i].rad :: 0.0
