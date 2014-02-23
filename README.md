@@ -3,6 +3,9 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.13
+* Fix v0.12 bug.
+
 #version 0.12
 * Implement animation.
 * Draw backgroud.
