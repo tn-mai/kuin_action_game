@@ -131,7 +131,7 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
     else
       do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#FallL, AnimationData@Action#FallR)
     end if
-  elif (actor.velocity.x.Abs() < 0.001)
+  elif (animationIndex <> AnimationData@Action#RunL & animationIndex <> AnimationData@Action#RunR)
     do animationIndex :: actor.direction.x < 0.0 ?(AnimationData@Action#StopL, AnimationData@Action#StopR)
   end if
   if (animationIndex $ int = actor.animation.index)
