@@ -326,6 +326,7 @@ end func
 }
 func Title(resource : @Resource, status : @Status)
   do @WaitForKeyReleased()
+  do BGM@PlayFade("bgm01.ogg", 0.0, 0.12, 30)
   while (Input@Pad(0, Input@EBtn#A) = 0)
     do @DrawText(resource, "NINJA TITLE", 100, 0, 0)
     do Kuin@Act()
@@ -407,6 +408,8 @@ func Game(resource : @Resource, status : @Status) : @Result
   const enemyCount : int :: 600 { 敵発生間隔(フレーム数) }
   var enemyCounter : int { 敵発生間隔カウンタ }
 
+  do BGM@PlayFade("syakuhachi.ogg", 0.0, 0.0, 30)
+
   while mainLoop()
     do perf.Init()
 
@@ -487,6 +490,7 @@ end func
   ゲームオーバー
 }
 func GameOver(resource : @Resource, status : @Status)
+  do BGM@StopFade(30)
   do @WaitForKeyReleased()
   while (Input@Pad(0, Input@EBtn#A) = 0)
     do @DrawText(resource, "GAME OVER", 100, 0, 0)
