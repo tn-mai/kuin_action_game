@@ -103,7 +103,7 @@ class EnemyList()
             do animationIndex :: AnimationData@Action#EnemyR $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
             do SE@Play(Main@SEID#EnemyShot $ int)
-          elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
+          elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
             do enemy.direction.Set(-1.0, 0.0)
             do animationIndex :: AnimationData@Action#EnemyL $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
