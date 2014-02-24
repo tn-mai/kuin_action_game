@@ -288,7 +288,9 @@ enum SEID
   Landing
   PlayerShot
   EnemyShot
-  EnemyDie
+  Slash
+  Dead
+  ShotCollision
 end enum
 
 {
@@ -304,7 +306,9 @@ func Main()
   do SE@Load("landing.ogg", false)
   do SE@Load("playershot.ogg", false)
   do SE@Load("enemyshot.ogg", false)
-  do SE@Load("landing.ogg", false)
+  do SE@Load("slash.ogg", false)
+  do SE@Load("slashdead.ogg", false)
+  do SE@Load("shotcollision.ogg", false)
 
   while ()
     do @Title(resource, status)
@@ -336,6 +340,7 @@ var score : int
 func Game(resource : @Resource, status : @Status) : @Result
   { プレイヤー弾と敵弾が衝突したときの処理 }
   func ShotCollision(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
+    do SE@Play(@SEID#ShotCollision $ int)
     return Actor@List#DeletionRequest#Both
   end func
   { プレイヤー弾と敵が衝突したときの処理 }
@@ -350,6 +355,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     if (player.hp > 0)
       do player.hp :- 1
       do player.invincibleCount :: Player@Player#invincibleFrames
+      do SE@Play(@SEID#Slash $ int)
     end if
     return Actor@List#DeletionRequest#Right
   end func
@@ -359,6 +365,7 @@ func Game(resource : @Resource, status : @Status) : @Result
     if (player.hp > 0)
       do player.hp :- 1
       do player.invincibleCount :: Player@Player#invincibleFrames
+      do SE@Play(@SEID#Slash $ int)
     end if
     return Actor@List#DeletionRequest#None
   end func

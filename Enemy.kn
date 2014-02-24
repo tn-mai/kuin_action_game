@@ -30,7 +30,7 @@ class Enemy(Actor@Actor)
       do this.fadeCount :: 60
       do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
       do this.velocity.x :: this.direction.x * -1.0
-      do SE@Play(Main@SEID#EnemyShot $ int)
+      do SE@Play(Main@SEID#Dead $ int)
     end if
   end func
 end class
@@ -102,10 +102,12 @@ class EnemyList()
             do enemy.direction.Set(1.0, 0.0)
             do animationIndex :: AnimationData@Action#EnemyR $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+            do SE@Play(Main@SEID#EnemyShot $ int)
           elif (direction >= 0.75 * Lib@Pi | direction <= 1.25 * Lib@Pi)
             do enemy.direction.Set(-1.0, 0.0)
             do animationIndex :: AnimationData@Action#EnemyL $ int
             do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+            do SE@Play(Main@SEID#EnemyShot $ int)
           end if
         end if
         do enemy.shotInterval :: @GetShotInterval()
