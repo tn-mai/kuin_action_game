@@ -3,6 +3,11 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.2.0
+* Implement playing the sound effect.
+* Fix: fix enemy attack area for player on the left side.
+![ver.0.1.5](ScreenShot/gameplay_v0_2_0.png)
+
 #version 0.1.5
 * Implement enemy damage motion.
 * Add actor collision activation flag.
