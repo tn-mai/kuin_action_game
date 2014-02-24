@@ -1,0 +1,60 @@
+{
+  SE管理
+}
+
+class Sound()
+  var snd : Snd@CSnd
+  var isLoop : bool
+
+  func Sound(snd : Snd@CSnd, isLoop : bool) : @Sound
+    do this.snd :: snd
+    do this.isLoop :: isLoop
+    return this
+  end func
+
+  func Play()
+    do this.snd.Play(0.0, this.isLoop, 0.0)
+  end func
+
+  func Stop()
+    do this.snd.Stop()
+  end func
+
+  func IsPlay() : bool
+    return this.snd.ChkPlaying()
+  end func
+end class
+
+-var se : []@Sound
+
+func Initialize()
+  do @se :: []@Sound
+end func
+
+func Load(path : []char, isLoop : bool)
+  do @se :~ [(#@Sound).Sound(Snd@Load(path), isLoop)]@Sound
+end func
+
+func Play(id : int)
+  if (id >= @se.Len())
+    do Dbg@Log("WARNING: SE no." ~ id.ToStr() ~ " not loaded.")
+    return
+  end if
+  do @se[id].Play()
+end func
+
+func Stop(id : int)
+  if (id >= @se.Len())
+    do Dbg@Log("WARNING: SE no." ~ id.ToStr() ~ " not loaded.")
+    return
+  end if
+  do @se[id].Stop()
+end func
+
+func IsPlay(id : int) : bool
+  if (id >= @se.Len())
+    do Dbg@Log("WARNING: SE no." ~ id.ToStr() ~ " not loaded.")
+    return false
+  end if
+  return @se[id].IsPlay()
+end func

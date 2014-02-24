@@ -30,6 +30,7 @@ class Enemy(Actor@Actor)
       do this.fadeCount :: 60
       do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
       do this.velocity.x :: this.direction.x * -1.0
+      do SE@Play(Main@SEID#EnemyShot $ int)
     end if
   end func
 end class

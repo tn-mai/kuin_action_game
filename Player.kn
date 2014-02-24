@@ -98,6 +98,7 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   if (Input@Pad(0, Input@EBtn#B) = 1)
     var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
     do velocity.y :: jumpPower
+    do SE@Play(Main@SEID#Landing $ int)
   end if
 
   { ショット }
@@ -105,6 +106,7 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
     var pos : Main@Position :: ##actor.position
     do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.8
     do shotList.Add(pos, (##actor.direction).MulScalar(32.0))
+    do SE@Play(Main@SEID#PlayerShot $ int)
   end if
   { 重力制御 }
   do velocity.y  :+ Main@gravity

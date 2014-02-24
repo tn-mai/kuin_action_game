@@ -282,6 +282,15 @@ class Perf()
   end func
 end class
 
+
+enum SEID
+  Run
+  Landing
+  PlayerShot
+  EnemyShot
+  EnemyDie
+end enum
+
 {
  エントリポイント
 }
@@ -290,6 +299,12 @@ func Main()
   do status.Init()
   var resource : @Resource :: #@Resource
   do resource.Init()
+  do SE@Initialize()
+  do SE@Load("run.ogg", true)
+  do SE@Load("landing.ogg", false)
+  do SE@Load("playershot.ogg", false)
+  do SE@Load("enemyshot.ogg", false)
+  do SE@Load("landing.ogg", false)
 
   while ()
     do @Title(resource, status)
