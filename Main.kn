@@ -467,7 +467,7 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   do @WaitForKeyReleased()
 
-  var player : Player@Player :: Player@Create(400.0, 800.0)
+  var player : Player@Player :: Player@Create(300.0, 800.0)
   do player.invincibleCount :: Player@Player#invincibleFrames
   do player.category :: CollisionGroup@categoryPlayer
   do player.collisionMask :: CollisionGroup@maskPlayer
