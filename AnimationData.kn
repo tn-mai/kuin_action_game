@@ -150,49 +150,49 @@ func Load(path : []char) : @Data
   do data.pictureList :: #[25]@Picture
   for i(0, 17)
     do data.pictureList[i] :: #@Picture
-    do data.pictureList[i].SetRect(300.0, 140.0, 400.0, 300.0)
-    do data.pictureList[i].SetOffset(-50.0, -160.0)
+    do data.pictureList[i].SetRect(128.0, 128.0, 256.0, 288.0)
+    do data.pictureList[i].SetOffset(-64.0, -160.0)
     do data.pictureList[i].rad :: 0.0
     do data.pictureList[i].frames :: 10 $ byte16
     do data.pictureList[i].flags :: 0 $ byte16
   end for
-  do data.pictureList[data.patternOffset[@Action#StopR $ int] + 0].SetRect(200.0, 140.0, 300.0, 300.0)
-  do data.pictureList[data.patternOffset[@Action#StopL $ int] + 0].SetRect(200.0, 140.0, 300.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#StopR $ int] + 0].SetRect(0.0, 128.0, 128.0, 288.0)
+  do data.pictureList[data.patternOffset[@Action#StopL $ int] + 0].SetRect(0.0, 128.0, 128.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#StopL $ int]].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#JumpL $ int]].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#FallL $ int]].flags :: @Flag#FlipH $ byte16
-  do data.pictureList[data.patternOffset[@Action#ShotL $ int]].SetRect(300.0, 100.0, 332.0, 116.0)
-  do data.pictureList[data.patternOffset[@Action#ShotL $ int]].SetOffset(-16.0, -8.0)
+  do data.pictureList[data.patternOffset[@Action#ShotL $ int]].SetRect(0.0, 320.0, 32.0, 332.0)
+  do data.pictureList[data.patternOffset[@Action#ShotL $ int]].SetOffset(-16.0, -6.0)
   do data.pictureList[data.patternOffset[@Action#ShotL $ int]].flags :: @Flag#FlipH $ byte16
-  do data.pictureList[data.patternOffset[@Action#ShotR $ int]].SetRect(300.0, 100.0, 332.0, 116.0)
-  do data.pictureList[data.patternOffset[@Action#ShotR $ int]].SetOffset(-16.0, -8.0)
-  do data.pictureList[data.patternOffset[@Action#ShotU $ int]].SetRect(300.0, 100.0, 332.0, 116.0)
-  do data.pictureList[data.patternOffset[@Action#ShotU $ int]].SetOffset(-16.0, -8.0)
+  do data.pictureList[data.patternOffset[@Action#ShotR $ int]].SetRect(0.0, 320.0, 32.0, 332.0)
+  do data.pictureList[data.patternOffset[@Action#ShotR $ int]].SetOffset(-16.0, -6.0)
+  do data.pictureList[data.patternOffset[@Action#ShotU $ int]].SetRect(0.0, 320.0, 32.0, 332.0)
+  do data.pictureList[data.patternOffset[@Action#ShotU $ int]].SetOffset(-16.0, -6.0)
   do data.pictureList[data.patternOffset[@Action#ShotU $ int]].rad :: 4.75
-  do data.pictureList[data.patternOffset[@Action#ShotD $ int]].SetRect(300.0, 100.0, 332.0, 116.0)
-  do data.pictureList[data.patternOffset[@Action#ShotD $ int]].SetOffset(-16.0, -8.0)
+  do data.pictureList[data.patternOffset[@Action#ShotD $ int]].SetRect(0.0, 320.0, 32.0, 332.0)
+  do data.pictureList[data.patternOffset[@Action#ShotD $ int]].SetOffset(-16.0, -6.0)
   do data.pictureList[data.patternOffset[@Action#ShotD $ int]].rad :: 1.5
 
-  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].SetRect(300.0, 140.0, 400.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].SetRect(128.0, 128.0, 256.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 0].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].SetRect(400.0, 140.0, 500.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].SetRect(256.0, 128.0, 384.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 1].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].SetRect(500.0, 140.0, 600.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].SetRect(384.0, 128.0, 512.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 2].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].SetRect(600.0, 140.0, 700.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].SetRect(512.0, 128.0, 640.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].flags :: @Flag#FlipH $ byte16
   do data.pictureList[data.patternOffset[@Action#RunL $ int] + 3].frames :: 8 $ byte16
 
-  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 0].SetRect(300.0, 140.0, 400.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 0].SetRect(128.0, 128.0, 256.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunR $ int] + 0].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 1].SetRect(400.0, 140.0, 500.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 1].SetRect(256.0, 128.0, 384.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunR $ int] + 1].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 2].SetRect(500.0, 140.0, 600.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 2].SetRect(384.0, 128.0, 512.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunR $ int] + 2].frames :: 8 $ byte16
-  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 3].SetRect(600.0, 140.0, 700.0, 300.0)
+  do data.pictureList[data.patternOffset[@Action#RunR $ int] + 3].SetRect(512.0, 128.0, 640.0, 288.0)
   do data.pictureList[data.patternOffset[@Action#RunR $ int] + 3].frames :: 8 $ byte16
 
   var el : @Picture :: #@Picture
@@ -223,8 +223,8 @@ func Load(path : []char) : @Data
 
   for i(0, 2)
     var shot : @Picture :: #@Picture
-    do shot.SetRect(300.0, 116.0, 320.0, 132.0)
-    do shot.SetOffset(-16.0, -8.0)
+    do shot.SetRect(0.0, 334.0, 17.0, 351.0)
+    do shot.SetOffset(-(17.0 / 2.0), -(17.0 / 2.0))
     do shot.frames :: 4 $ byte16
     do shot.rad :: 0.5 * i $ float
     do data.pictureList[data.patternOffset[@Action#EnemyShot $ int] + i] :: shot
