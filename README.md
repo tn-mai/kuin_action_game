@@ -3,10 +3,18 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.3.0
+* Enemies just entered dose not collide with player.
+* Player can fire to upper and lower.
+* Increase map size(2x1 to 2x2 screen). and change level design.
+* Renew camera control algorithm.
+* Animate player shot and enemy shot.
+![ver.0.3.0](ScreenShot/gameplay_v0_3_0.png)
+
 #version 0.2.0
 * Implement playing the sound effect.
 * Fix: fix enemy attack area for player on the left side.
-![ver.0.1.5](ScreenShot/gameplay_v0_2_0.png)
+![ver.0.2.0](ScreenShot/gameplay_v0_2_0.png)
 
 #version 0.1.5
 * Implement enemy damage motion.
