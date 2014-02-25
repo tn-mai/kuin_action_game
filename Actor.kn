@@ -36,7 +36,7 @@ class Actor()
   var velocity : Main@Vector2
   var direction : Main@Vector2
   var color : Main@ColorRGBA
-  var hasCollision : bool
+  var collisionFlag : byte32
 
   func Initialize(position : Main@Position, rect : Main@Rect)
     do this.position :: ##position
@@ -44,7 +44,7 @@ class Actor()
     do this.velocity :: #Main@Vector2
     do this.direction :: Main@MakeVector2(1.0, 0.0)
     do this.color :: Main@MakeColorRGBA(0.5, 0.5, 0.5, 1.0)
-    do this.hasCollision :: true
+    do this.collisionFlag :: 16#ffffffff $ byte32
   end func
 
   func Draw(position : Main@Position)
@@ -140,15 +140,11 @@ class List()
     do this.actorList.Head()
     while l(!this.actorList.ChkEnd())
       var left : @Actor :: this.actorList.Get()
-      if (!left.hasCollision)
-        do this.actorList.Next()
-        continue l
-      end if
       var rectL : Main@Rect :: (##left.rect).AddPosition(left.position)
       do rhs.actorList.Head()
       while r(!rhs.actorList.ChkEnd())
         var right : @Actor :: rhs.actorList.Get()
-        if (!right.hasCollision)
+        if (left.collisionFlag.And(right.collisionFlag) $ int = 0)
           do rhs.actorList.Next()
           continue r
         end if

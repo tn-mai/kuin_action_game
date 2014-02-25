@@ -25,7 +25,7 @@ class Enemy(Actor@Actor)
 
   func Damaged()
     if (!this.killed)
-      do this.hasCollision :: false
+      do this.collisionFlag :: 0 $ byte32
       do this.killed :: true
       do this.fadeCount :: 60
       do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
