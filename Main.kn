@@ -144,6 +144,20 @@ class Rect()
   var right : float
   var bottom : float
 
+  func Rect(left : float, top : float, right : float, bottom : float) : @Rect
+    do this.left :: left
+    do this.top :: top
+    do this.right :: right
+    do this.bottom :: bottom
+    return this
+  end func
+  func Assign(r : @Rect)
+    do this.left :: r.left
+    do this.top :: r.top
+    do this.right :: r.right
+    do this.bottom :: r.bottom
+  end func
+
   func ToStr() : []char
     return "(" ~ this.left.ToStr() ~ "," ~ this.top.ToStr() ~ "," ~ this.right.ToStr() ~ "," ~ this.bottom.ToStr() ~ ")"
   end func
@@ -158,12 +172,7 @@ class Rect()
 end class
 
 func MakeRect(left : float, top : float, right : float, bottom : float) : @Rect
-  var rect : @Rect :: #@Rect
-  do rect.left :: left
-  do rect.top :: top
-  do rect.right :: right
-  do rect.bottom :: bottom
-  return rect
+  return (#@Rect).Rect(left, top, right, bottom)
 end func
 
 class RectInt()
@@ -358,21 +367,20 @@ class Camera()
   var position : @Position
   var target : @Position
   var offset : @Vector2
-  var leftLimit : float
-  var rightLimit : float
+  var limit : @Rect
 
   -+func Ctor()
     do this.position :: #@Position
     do this.target :: #@Position
     do this.offset :: #@Vector2
+    do this.limit :: #@Rect
   end func
 
-  func Camera(pos : @Position, offset : @Vector2, l : float, r : float) : @Camera
+  func Camera(pos : @Position, offset : @Vector2, limit : @Rect) : @Camera
     do this.position.Assign(pos)
     do this.target.Assign(pos)
     do this.offset.Assign(offset)
-    do this.leftLimit :: l
-    do this.rightLimit :: r
+    do this.limit.Assign(limit)
     return this
   end func
 
@@ -383,16 +391,22 @@ class Camera()
   func SetTarget(target : @Position)
     do this.target.Assign(target)
     do this.target.Add(this.offset)
-    if (this.target.x < this.leftLimit)
-      do this.target.x :: this.leftLimit
+    if (this.target.x < this.limit.left)
+      do this.target.x :: this.limit.left
     end if
-    if (this.target.x > this.rightLimit)
-      do this.target.x :: this.rightLimit
+    if (this.target.x > this.limit.right)
+      do this.target.x :: this.limit.right
+    end if
+    if (this.target.y < this.limit.top)
+      do this.target.y :: this.limit.top
+    end if
+    if (this.target.y > this.limit.bottom)
+      do this.target.y :: this.limit.bottom
     end if
   end func
 
   func Update()
-    const speed : float :: 20.0
+    const speed : float :: 24.0
     var vec : @Vector2 :: this.target.Sub(this.position)
     var distance : float :: Lib@Hypot(vec.x, vec.y)
     if (distance.Abs() < speed)
@@ -466,15 +480,18 @@ func Game(resource : @Resource, status : @Status) : @Result
   var background : Draw@CTex :: Draw@LoadTex("sunset.kntex")
   do Map@InitMap()
 
+  { カメラ設定 }
   const cameraTargetDistanceX : float :: 200.0
+  const cameraTargetDistanceY : float :: -100.0
   const leftLimit : float :: 0.0
+  const topLimit : float :: 0.0
   const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
+  const bottomLimit : float :: (Map@height$ float) * Map@blockH - Map@viewH
   var cameraPosition : @Position :: (#@Position).Position(0.0, 0.0)
-  var cameraOffset : @Vector2 :: (#@Vector2).Vector2(-(Map@viewW / 2.0), 0.0)
-  var camera : @Camera :: (#@Camera).Camera(cameraPosition, cameraOffset, leftLimit, rightLimit)
+  var cameraOffset : @Vector2 :: (#@Vector2).Vector2(-(Map@viewW / 2.0), -(Map@viewH / 2.0))
+  var camera : @Camera :: (#@Camera).Camera(cameraPosition, cameraOffset, (#@Rect).Rect(leftLimit, topLimit, rightLimit, bottomLimit))
   var cameraTarget : @Position :: ##player.position
   do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
-  do cameraTarget.y :: 0.0
   do camera.SetTarget(cameraTarget)
 
   do @score :: 0
@@ -514,7 +531,7 @@ func Game(resource : @Resource, status : @Status) : @Result
 
     var cameraTarget : @Position :: ##player.position
     do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
-    do cameraTarget.y :: 0.0
+    do cameraTarget.y :+ cameraTargetDistanceY
     do camera.SetTarget(cameraTarget)
     do camera.Update()
 

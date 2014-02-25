@@ -7,23 +7,31 @@ const viewH : float :: 900.0
 const blockW : float :: 100.0
 const blockH : float :: 100.0
 const width : int :: 16 * 2
-const height : int :: 9
+const height : int :: 9 * 2
 
 var data : [][]char
 var tex : Draw@CTex
 
 func InitMap()
   do @data :: #[@height][]char
-  do @data[0] :: "................"~"................"
-  do @data[1] :: ".......X........"~"...........XX..."
-  do @data[2] :: ".......X........"~"....XXX.....XXXX"
-  do @data[3] :: ".......XXX......"~"....XXXX........"
-  do @data[4] :: "................"~"..XXX...X......."
-  do @data[5] :: "............XXXX"~"XXX.X...XXXX...."
-  do @data[6] :: "........XX......"~"....X..........."
-  do @data[7] :: "......XXXXX....."~"....X.........XX"
-  do @data[8] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
-
+  do @data[ 0] :: "................"~"................"
+  do @data[ 1] :: "................"~"...........XX..."
+  do @data[ 2] :: "XX.............."~"............XXX."
+  do @data[ 3] :: "..XXX..........."~"....XXXX........"
+  do @data[ 4] :: "................"~"..XX............"
+  do @data[ 5] :: ".......XX...XXXX"~"XX.......XXX...."
+  do @data[ 6] :: "......XXXX......"~"................"
+  do @data[ 7] :: "....XXX........."~"..............XX"
+  do @data[ 8] :: "XXXX.......XXXXX"~"XX.XXXXXX....XXX"
+  do @data[ 9] :: "..........XX...."~"....X..........X"
+  do @data[10] :: "..........X....."~"....X.....XX...X"
+  do @data[11] :: ".......XXXX....."~"....X.......XXXX"
+  do @data[12] :: ".XXX............"~"....X...X......X"
+  do @data[13] :: "XX.............."~"..XXX...X......X"
+  do @data[14] :: "X.....X.....XXXX"~"XX.....XXXXX...X"
+  do @data[15] :: "X.....XXXX......"~"...............X"
+  do @data[16] :: "XX...XXXXXX....."~"....XX........XX"
+  do @data[17] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
   do @tex :: Draw@LoadTex("player.kntex")
 end func
 
@@ -32,16 +40,21 @@ func DrawMap(camera : Main@Position)
   if (rangeL < 0)
     do rangeL :: 0
   end if
-  var rangeR : int :: rangeL + 17
+  var rangeR : int :: rangeL + (@viewW / @blockW) $ int + 1
   if (rangeR > @width - 1)
     do rangeR :: @width - 1
   end if
-{
-  do Dbg@Log("rangeL" ~ rangeL.ToStr())
-  do Dbg@Log("rangeR" ~ rangeR.ToStr())
-}
+  var rangeT : int :: ((camera.y / @blockH) $ int) - 1
+  if (rangeT < 0)
+    do rangeT :: 0
+  end if
+  var rangeB : int :: rangeT + (@viewH / @blockH) $ int + 1
+  if (rangeB > @height - 1)
+    do rangeB :: @height - 1
+  end if
+
   for x(rangeL, rangeR)
-    for y(0, @height - 1)
+    for y(rangeT, rangeB)
       if (@data[y][x] = 'X')
         var left : float :: (x $ float) * @blockW - camera.x
         var top : float :: (y $ float) * @blockH - camera.y
