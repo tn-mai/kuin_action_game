@@ -49,8 +49,20 @@ end func
 class Position()
   var x : float
   var y : float
+  { 文字列化 }
   func ToStr() : []char
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
+  end func
+  { 値設定 }
+  func Position( x : float, y : float) : @Position
+    do this.x :: x
+    do this.y :: y
+    return this
+  end func
+  { 値設定 }
+  func Assign(v : @Position)
+    do this.x :: v.x
+    do this.y :: v.y
   end func
   { 加算 }
   func Add(v : @Vector2) : @Position
@@ -59,10 +71,8 @@ class Position()
     return this
   end func
   { 減算 }
-  func Sub(v : @Position) : @Position
-    do this.x :- v.x
-    do this.y :- v.y
-    return this
+  func Sub(v : @Position) : @Vector2
+    return (#@Vector2).Vector2(this.x - v.x, this.y - v.y)
   end func
 end class
 
@@ -76,11 +86,21 @@ end func
 class Vector2()
   var x : float
   var y : float
+
+  func Vector2(x : float, y : float) : @Vector2
+    do this.x :: x
+    do this.y :: y
+    return this
+  end func
   { 文字列変換 }
   func ToStr() : []char
     return "(" ~ this.x.ToStr() ~ "," ~ this.y.ToStr() ~ ")"
   end func
   { 値設定 }
+  func Assign(v : @Vector2)
+    do this.x :: v.x
+    do this.y :: v.y
+  end func
   func Set(x : float, y : float)
     do this.x :: x
     do this.y :: y
@@ -333,6 +353,57 @@ func Title(resource : @Resource, status : @Status)
   end while
 end func
 
+{ カメラ制御 }
+class Camera()
+  var position : @Position
+  var target : @Position
+  var offset : @Vector2
+  var leftLimit : float
+  var rightLimit : float
+
+  -+func Ctor()
+    do this.position :: #@Position
+    do this.target :: #@Position
+    do this.offset :: #@Vector2
+  end func
+
+  func Camera(pos : @Position, offset : @Vector2, l : float, r : float) : @Camera
+    do this.position.Assign(pos)
+    do this.target.Assign(pos)
+    do this.offset.Assign(offset)
+    do this.leftLimit :: l
+    do this.rightLimit :: r
+    return this
+  end func
+
+  func SetPosition(pos : @Position)
+    do this.position.Assign(pos)
+  end func
+
+  func SetTarget(target : @Position)
+    do this.target.Assign(target)
+    do this.target.Add(this.offset)
+    if (this.target.x < this.leftLimit)
+      do this.target.x :: this.leftLimit
+    end if
+    if (this.target.x > this.rightLimit)
+      do this.target.x :: this.rightLimit
+    end if
+  end func
+
+  func Update()
+    const speed : float :: 20.0
+    var vec : @Vector2 :: this.target.Sub(this.position)
+    var distance : float :: Lib@Hypot(vec.x, vec.y)
+    if (distance.Abs() < speed)
+      do this.position.Assign(this.target)
+      return
+    end if
+    do vec.MulScalar(speed / distance)
+    do this.position.Add(vec)
+  end func
+end class
+
 {
   ゲーム
 }
@@ -382,16 +453,30 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   do @WaitForKeyReleased()
 
-  var camera : @Position :: @MakePosition(0.0, 0.0)
   var player : Player@Player :: Player@Create(400.0, 800.0)
+  do player.invincibleCount :: Player@Player#invincibleFrames
   var playerList : Actor@List :: #Actor@List
   do playerList.Add(player)
-  do player.invincibleCount :: Player@Player#invincibleFrames
-  do Map@InitMap()
+
   var playerShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 100.0, 332.0, 116.0))
+
   var enemyShotList : Shot@ShotList :: Shot@Create("player.kntex", @MakeRect(300.0, 116.0, 320.0, 132.0))
   var enemyList : Enemy@EnemyList :: Enemy@Create()
+
   var background : Draw@CTex :: Draw@LoadTex("sunset.kntex")
+  do Map@InitMap()
+
+  const cameraTargetDistanceX : float :: 200.0
+  const leftLimit : float :: 0.0
+  const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
+  var cameraPosition : @Position :: (#@Position).Position(0.0, 0.0)
+  var cameraOffset : @Vector2 :: (#@Vector2).Vector2(-(Map@viewW / 2.0), 0.0)
+  var camera : @Camera :: (#@Camera).Camera(cameraPosition, cameraOffset, leftLimit, rightLimit)
+  var cameraTarget : @Position :: ##player.position
+  do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
+  do cameraTarget.y :: 0.0
+  do camera.SetTarget(cameraTarget)
+
   do @score :: 0
 
   var perf : @Perf :: #@Perf
@@ -427,21 +512,11 @@ func Game(resource : @Resource, status : @Status) : @Result
       do playerList.Collision(enemyList.enemyList, PlayerHitEnemy)
     end if
 
-    const cameraForrowingRangeL : float :: Map@viewW / 4.0
-    if (player.position.x < camera.x + cameraForrowingRangeL)
-      do camera.x :: player.position.x - cameraForrowingRangeL
-    end if
-    if (camera.x < 0.0)
-      do camera.x :: 0.0
-    end if
-    const cameraForrowingRangeR : float :: Map@viewW * 3.0 / 4.0
-    if (player.position.x >= camera.x + cameraForrowingRangeR)
-      do camera.x :: player.position.x - cameraForrowingRangeR
-    end if
-    const rightLimit : float :: (Map@width $ float) * Map@blockW - Map@viewW
-    if (camera.x > rightLimit)
-      do camera.x :: rightLimit
-    end if
+    var cameraTarget : @Position :: ##player.position
+    do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
+    do cameraTarget.y :: 0.0
+    do camera.SetTarget(cameraTarget)
+    do camera.Update()
 
     if (enemyList.Len() < 10 & enemyCounter <= 0)
       do enemyCounter :: 10 * 60
@@ -461,14 +536,14 @@ func Game(resource : @Resource, status : @Status) : @Result
     do perf.Set(perfColEnemyAct)
 
     do background.DrawScale(0.0, 0.0, 1024.0, 512.0, 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
-    do Map@DrawMap(camera)
+    do Map@DrawMap(camera.position)
 
     do perf.Set(perfColMapDraw)
 
-    do enemyList.Draw(camera)
-    do Player@Draw(player, camera)
-    do playerShotList.Draw(camera)
-    do enemyShotList.Draw(camera)
+    do enemyList.Draw(camera.position)
+    do Player@Draw(player, camera.position)
+    do playerShotList.Draw(camera.position)
+    do enemyShotList.Draw(camera.position)
 
     do perf.Set(perfColCharacterDraw)
 
