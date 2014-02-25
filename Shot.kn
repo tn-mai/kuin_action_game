@@ -2,24 +2,40 @@
   ショット
 }
 
+class Shot(Actor@Actor)
+  var animation : AnimationData@Animation
+
+  func Shot(position : Main@Position, rect : Main@Rect) : @Shot
+    do this.Initialize(position, rect)
+    return this
+  end func
+end class
+
 class ShotList()
   var shotList : Actor@List
-  var animation : Animation@Animation
+  var animationData : AnimationData@Data
+  var texture : Draw@CTex
 
   { 初期化 }
-  func Initialize(path : []char, rect : Main@Rect)
+  func Initialize(dataPath : []char, texPath : []char)
     do this.shotList :: #Actor@List
-    do this.animation :: (#Animation@Animation).Animation(path, rect)
+    try
+    do this.animationData :: AnimationData@Load(dataPath)
+    do this.texture :: Draw@LoadTex(texPath)
+    catch()
+      do Dbg@Log("ERROR: Can't load shot data")
+    end try
   end func
 
   { ショット発生 }
-  func Add(position : Main@Position, velocity : Main@Vector2, category : byte32, mask : byte32)
-    var actor : Actor@Actor :: Actor@Create(position, Main@MakeRect(-16.0, -8.0, 16.0, 8.0))
+  func Add(position : Main@Position, velocity : Main@Vector2, category : byte32, mask : byte32, animation : int)
+    var actor : @Shot :: (#@Shot).Shot(position, Main@MakeRect(-16.0, -8.0, 16.0, 8.0))
     do actor.velocity :: ##velocity
     do actor.direction.x :: velocity.x < 0.0 ?(-1.0, 1.0)
     do actor.direction.y :: 0.0
     do actor.category :: category
     do actor.collisionMask :: mask
+    do actor.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, animation)
     do this.shotList.Add(actor)
   end func
 
@@ -27,13 +43,14 @@ class ShotList()
   func Action(resource : Main@Resource)
     do this.shotList.Head()
     while (!this.shotList.ChkEnd())
-      var shot : Actor@Actor :: this.shotList.Get()
+      var shot : @Shot :: this.shotList.Get() $ @Shot
       var result : Map@CollisionResult :: Map@Collision(shot)
       if (result.isHitX | result.isHitY)
         do this.shotList.Del()
       elif (shot.position.x < -16.0 | shot.position.x > Map@width $ float * Map@blockW)
         do this.shotList.Del()
       else
+        do shot.animation.Update()
         do this.shotList.Next()
       end if
     end while
@@ -43,10 +60,10 @@ class ShotList()
   func Draw(camera : Main@Position)
     do this.shotList.Head()
     while (!this.shotList.ChkEnd())
-      var shot : Actor@Actor :: this.shotList.Get()
+      var shot : @Shot :: this.shotList.Get() $ @Shot
       var x : float :: shot.position.x - 16.0 - camera.x
       var y : float :: shot.position.y - 8.0 - camera.y
-      do this.animation.Draw(x, y, Main@MakeColorRGBA(1.0, 1.0, 1.0, 1.0), shot.direction.x < 0.0 ?(Animation@Direction#Left, Animation@Direction#Right))
+      do shot.animation.Draw(x, y)
       do this.shotList.Next()
     end while
   end func
@@ -58,9 +75,9 @@ class ShotList()
 end class
 
 { 弾リストを作成する }
-func Create(path : []char, rect : Main@Rect) : @ShotList
+func Create(dataPath : []char, texPath : []char) : @ShotList
   var shotList : @ShotList :: #@ShotList
-  do shotList.Initialize(path, rect)
+  do shotList.Initialize(dataPath, texPath)
   return shotList
 end func
 

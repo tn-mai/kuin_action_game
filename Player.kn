@@ -104,8 +104,17 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   { ショット }
   if (Input@Pad(0, Input@EBtn#C) = 1)
     var pos : Main@Position :: ##actor.position
-    do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.8
-    do shotList.Add(pos, (##actor.direction).MulScalar(32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot)
+    if (Input@Pad(0, Input@EBtn#Down) > 0)
+      do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.2
+      do shotList.Add(pos, (#Main@Vector2).Vector2(0.0, 32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot, AnimationData@Action#ShotD $ int)
+    elif (Input@Pad(0, Input@EBtn#Up) > 0)
+      do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.9
+      do shotList.Add(pos, (#Main@Vector2).Vector2(0.0, -32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot, AnimationData@Action#ShotU $ int)
+    else
+      do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.8
+      var animationId : int :: (actor.direction.x < 0.0 ?(AnimationData@Action#ShotL, AnimationData@Action#ShotR)) $ int
+      do shotList.Add(pos, (##actor.direction).MulScalar(32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot, animationId)
+    end if
     do SE@Play(Main@SEID#PlayerShot $ int)
   end if
   { 重力制御 }
