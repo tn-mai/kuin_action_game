@@ -111,7 +111,9 @@ class Animation()
       do x :+ sw
       do dw :* -1.0
     end if
-    do this.tex.DrawScale(pic.left, pic.top, sw, sh, x, y, dw, dh, 1.0, 1.0, 1.0, 1.0)
+    var cx : float :: -pic.x
+    var cy : float :: -pic.y
+    do this.tex.DrawRot(pic.left, pic.top, sw, sh, x, y, dw, dh, cx, cy, pic.rad, 1.0, 1.0, 1.0, 1.0)
   end func
 end class
 
