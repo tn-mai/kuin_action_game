@@ -199,6 +199,7 @@ end func
   ゲーム結果
 }
 enum Result
+  StageClear { ステージクリア }
   GameOver  { ゲームオーバーになった }
   Ending    { エンディングになった }
 end enum
@@ -322,6 +323,9 @@ enum SEID
   ShotCollision
 end enum
 
+var score : int
+var stage : int
+
 {
  エントリポイント
 }
@@ -341,12 +345,19 @@ func Main()
 
   while ()
     do @Title(resource, status)
-    switch (@Game(resource, status))
-    case (@Result#Ending)
-      do @Ending(resource, status)
-    default
-      do @GameOver(resource, status)
-    end switch
+    do @stage :: 1
+    do @score :: 0
+    while loop()
+      switch (@Game(resource, status))
+      case (@Result#StageClear)
+        do @stage :+ 1
+      case (@Result#Ending)
+        do @Ending(resource, status)
+      default
+        do @GameOver(resource, status)
+        break loop
+      end switch
+    end while
   end while
 end func 
 
@@ -421,7 +432,7 @@ end class
 {
   ゲーム
 }
-var score : int
+var restEnemy : int
 
 func Game(resource : @Resource, status : @Status) : @Result
   { プレイヤー弾と敵弾が衝突したときの処理 }
@@ -432,6 +443,9 @@ func Game(resource : @Resource, status : @Status) : @Result
   { プレイヤー弾と敵が衝突したときの処理 }
   func EnemyCollision(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
     do @score :+ 100
+    if (@restEnemy > 0)
+      do @restEnemy :- 1
+    end if
     do (right $ Enemy@Enemy).Damaged()
     return Actor@List#DeletionRequest#Left
   end func
@@ -467,6 +481,13 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   do @WaitForKeyReleased()
 
+  var perf : @Perf :: #@Perf
+  var perfColPlayerAct     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 0.0, 0.8)
+  var perfColEnemyAct      : @ColorRGBA :: @MakeColorRGBA(0.0, 1.0, 0.0, 0.8)
+  var perfColMapDraw       : @ColorRGBA :: @MakeColorRGBA(0.0, 0.0, 1.0, 0.8)
+  var perfColCharacterDraw : @ColorRGBA :: @MakeColorRGBA(1.0, 1.0, 0.0, 0.8)
+  var perfColOtherDraw     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 1.0, 0.8)
+
   var player : Player@Player :: Player@Create(300.0, 800.0)
   do player.invincibleCount :: Player@Player#invincibleFrames
   do player.category :: CollisionGroup@categoryPlayer
@@ -496,15 +517,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
   do camera.SetTarget(cameraTarget)
 
-  do @score :: 0
-
-  var perf : @Perf :: #@Perf
-  var perfColPlayerAct     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 0.0, 0.8)
-  var perfColEnemyAct      : @ColorRGBA :: @MakeColorRGBA(0.0, 1.0, 0.0, 0.8)
-  var perfColMapDraw       : @ColorRGBA :: @MakeColorRGBA(0.0, 0.0, 1.0, 0.8)
-  var perfColCharacterDraw : @ColorRGBA :: @MakeColorRGBA(1.0, 1.0, 0.0, 0.8)
-  var perfColOtherDraw     : @ColorRGBA :: @MakeColorRGBA(1.0, 0.0, 1.0, 0.8)
-
+  do @restEnemy :: 10 + 3 * (@stage - 1)
   for i(0, 5)
     do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
   end for
@@ -537,16 +550,26 @@ func Game(resource : @Resource, status : @Status) : @Result
     do camera.SetTarget(cameraTarget)
     do camera.Update()
 
-    if (enemyList.Len() < 10 & enemyCounter <= 0)
+    var maxActiveEnemy : int :: @stage < 13 ?(7 + @stage, 20)
+    var capacity : int :: @restEnemy - enemyList.Len() > maxActiveEnemy ?(maxActiveEnemy, @restEnemy - enemyList.Len())
+    if (@restEnemy - enemyList.Len() > 0 & enemyCounter <= 0)
       do enemyCounter :: 10 * 60
-      var additionNumber : int
-      if ( enemyList.Len() >= 8)
-        do additionNumber :: 10 - enemyList.Len()
-      else
-        do additionNumber :: Rnd@Get(2, enemyList.Len() >= 5 ?(10 - enemyList.Len(), 5))
+      var minAddition : int :: @restEnemy < 2 ?(@restEnemy, 2)
+      if (minAddition > capacity)
+        do minAddition :: capacity
       end if
-      for (1, additionNumber)
-        do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height / 4) $ float * Map@blockH))
+      var maxAddition : int :: @restEnemy > 2 + @stage ?(2 + @stage, @restEnemy)
+      if (maxAddition > capacity)
+        do maxAddition :: capacity
+      end if
+      var additionCount : int :: Rnd@Get(minAddition, maxAddition)
+      for (1, additionCount)
+        var x : int :: Rnd@Get(1, Map@width - 1)
+        var y : int :: Rnd@Get(1, Map@height - 2)
+        while (Map@GetChip(x, y) <> '.' | Map@GetChip(x - 1, y) <> '.' | Map@GetChip(x + 1, y) <> '.')
+          do y :- 1
+        end while
+        do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
       end for
     elif (enemyCounter > 0)
       do enemyCounter :- 1
@@ -566,11 +589,17 @@ func Game(resource : @Resource, status : @Status) : @Result
 
     do perf.Set(perfColCharacterDraw)
 
-    do resource.DrawAscii(400.0, 10.0, 1.0, @AsciiFontEdge#Edge, @score.ToStr())
     do DrawPlayerHp(player)
+    do resource.DrawAscii(1300.0, 10.0, 1.0, @AsciiFontEdge#Edge, "STAGE:" ~ @stage.ToStrF("3d"))
+    do resource.DrawAscii(900.0, 10.0, 1.0, @AsciiFontEdge#Edge, "ENEMY:" ~ @restEnemy.ToStrF("4d"))
+    do resource.DrawAscii(400.0, 10.0, 1.0, @AsciiFontEdge#Edge, @score.ToStr())
 
     do perf.Set(perfColOtherDraw)
     do perf.Draw(20.0, 820.0, 400.0, 40.0, resource)
+
+    if (@restEnemy <= 0)
+      return @Result#StageClear
+    end if
 
     if (player.hp <= 0)
       break mainLoop
