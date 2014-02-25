@@ -105,7 +105,7 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   if (Input@Pad(0, Input@EBtn#C) = 1)
     var pos : Main@Position :: ##actor.position
     do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.8
-    do shotList.Add(pos, (##actor.direction).MulScalar(32.0))
+    do shotList.Add(pos, (##actor.direction).MulScalar(32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot)
     do SE@Play(Main@SEID#PlayerShot $ int)
   end if
   { 重力制御 }

@@ -13,11 +13,13 @@ class ShotList()
   end func
 
   { ショット発生 }
-  func Add(position : Main@Position, velocity : Main@Vector2)
+  func Add(position : Main@Position, velocity : Main@Vector2, category : byte32, mask : byte32)
     var actor : Actor@Actor :: Actor@Create(position, Main@MakeRect(-16.0, -8.0, 16.0, 8.0))
     do actor.velocity :: ##velocity
     do actor.direction.x :: velocity.x < 0.0 ?(-1.0, 1.0)
     do actor.direction.y :: 0.0
+    do actor.category :: category
+    do actor.collisionMask :: mask
     do this.shotList.Add(actor)
   end func
 

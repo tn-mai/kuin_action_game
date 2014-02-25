@@ -1,0 +1,13 @@
+{
+  衝突判定グループ
+}
+
+const categoryPlayer     : byte32 :: 16#00000001 $ byte32
+const categoryPlayerShot : byte32 :: 16#00000002 $ byte32
+const categoryEnemy      : byte32 :: 16#00000004 $ byte32
+const categoryEnemyShot  : byte32 :: 16#00000008 $ byte32
+
+const maskPlayer     : byte32 :: (@categoryEnemy $ int + @categoryEnemyShot $ int) $ byte32
+const maskPlayerShot : byte32 :: (@categoryEnemy $ int + @categoryEnemyShot $ int) $ byte32
+const maskEnemy      : byte32 :: (@categoryPlayer $ int + @categoryPlayerShot $ int + @categoryEnemy $ int) $ byte32
+const maskEnemyShot  : byte32 :: (@categoryPlayer $ int + @categoryPlayerShot $ int) $ byte32

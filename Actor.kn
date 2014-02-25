@@ -36,7 +36,8 @@ class Actor()
   var velocity : Main@Vector2
   var direction : Main@Vector2
   var color : Main@ColorRGBA
-  var collisionFlag : byte32
+  var category : byte32
+  var collisionMask : byte32
 
   func Initialize(position : Main@Position, rect : Main@Rect)
     do this.position :: ##position
@@ -44,7 +45,8 @@ class Actor()
     do this.velocity :: #Main@Vector2
     do this.direction :: Main@MakeVector2(1.0, 0.0)
     do this.color :: Main@MakeColorRGBA(0.5, 0.5, 0.5, 1.0)
-    do this.collisionFlag :: 16#ffffffff $ byte32
+    do this.category :: 16#ffffffff $ byte32
+    do this.collisionMask :: 16#ffffffff $ byte32
   end func
 
   func Draw(position : Main@Position)
@@ -144,7 +146,8 @@ class List()
       do rhs.actorList.Head()
       while r(!rhs.actorList.ChkEnd())
         var right : @Actor :: rhs.actorList.Get()
-        if (left.collisionFlag.And(right.collisionFlag) $ int = 0)
+        { どちらかが衝突対象になっていなければ判定を行わない }
+        if (left.collisionMask.And(right.category) $ int = 0 | right.collisionMask.And(left.category) $ int = 0)
           do rhs.actorList.Next()
           continue r
         end if

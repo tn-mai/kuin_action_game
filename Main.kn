@@ -469,6 +469,8 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   var player : Player@Player :: Player@Create(400.0, 800.0)
   do player.invincibleCount :: Player@Player#invincibleFrames
+  do player.category :: CollisionGroup@categoryPlayer
+  do player.collisionMask :: CollisionGroup@maskPlayer
   var playerList : Actor@List :: #Actor@List
   do playerList.Add(player)
 

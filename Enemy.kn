@@ -25,7 +25,7 @@ class Enemy(Actor@Actor)
 
   func Damaged()
     if (!this.killed)
-      do this.collisionFlag :: 0 $ byte32
+      do this.collisionMask :: this.collisionMask.And(CollisionGroup@maskEnemy.Not())
       do this.killed :: true
       do this.fadeCount :: 60
       do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
@@ -66,6 +66,8 @@ class EnemyList()
     do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, AnimationData@Action#EnemyL $ int)
     do enemy.direction.Set(-1.0, 0.0)
     do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
+    do enemy.category :: CollisionGroup@categoryEnemy
+    do enemy.collisionMask :: CollisionGroup@maskEnemy
     do this.enemyList.Add(enemy)
   end func
 
@@ -101,12 +103,12 @@ class EnemyList()
           if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
             do enemy.direction.Set(1.0, 0.0)
             do animationIndex :: AnimationData@Action#EnemyR $ int
-            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed), CollisionGroup@categoryEnemyShot, CollisionGroup@maskEnemyShot)
             do SE@Play(Main@SEID#EnemyShot $ int)
           elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
             do enemy.direction.Set(-1.0, 0.0)
             do animationIndex :: AnimationData@Action#EnemyL $ int
-            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed))
+            do shotList.Add(pos, (##enemy.direction).MulScalar(@shotSpeed), CollisionGroup@categoryEnemyShot, CollisionGroup@maskEnemyShot)
             do SE@Play(Main@SEID#EnemyShot $ int)
           end if
         end if
