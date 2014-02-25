@@ -3,6 +3,10 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.3.1
+* Add Map chip.
+![ver.0.3.1](ScreenShot/gameplay_v0_3_1.png)
+
 #version 0.3.0
 * Enemies just entered dose not collide with player.
 * Player can fire to upper and lower.
