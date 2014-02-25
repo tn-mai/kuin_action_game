@@ -603,12 +603,12 @@ func Game(resource : @Resource, status : @Status) : @Result
     if (@restEnemy <= 0 & enemyList.Len() <= 0)
       do stageClearEffectCount :+ 1
       if (stageClearEffectCount > 2 * 60)
-        do @score :+ player.ho * 1000
+        do @score :+ player.hp * 1000
         return @Result#StageClear
       end if
       do Draw@Rect(0.0, 0.0, 1600.0, 900.0, 0.0, 0.0, 0.0, stageClearEffectCount < 60 ?(stageClearEffectCount $ float / 60.0, 1.0))
       do resource.DrawAscii(300.0, 300.0, 2.5, @AsciiFontEdge#Edge, "STAGE " ~ @stage.ToStr() ~ " CLEAR")
-      do resource.DrawAscii(600.0, 600.0, 1.0, @AsciiFontEdge#Edge, "LIFE BONUS: " ~ (player.hp * 1000).ToStrFi("4d"))
+      do resource.DrawAscii(600.0, 600.0, 1.0, @AsciiFontEdge#Edge, "LIFE BONUS: " ~ (player.hp * 1000).ToStrF("4d"))
     end if
 
     if (player.hp <= 0)
