@@ -607,8 +607,8 @@ func Game(resource : @Resource, status : @Status) : @Result
         return @Result#StageClear
       end if
       do Draw@Rect(0.0, 0.0, 1600.0, 900.0, 0.0, 0.0, 0.0, stageClearEffectCount < 60 ?(stageClearEffectCount $ float / 60.0, 1.0))
-      do resource.DrawAscii(300.0, 300.0, 2.5, @AsciiFontEdge#Edge, "STAGE " ~ @stage.ToStr() ~ " CLEAR")
-      do resource.DrawAscii(600.0, 600.0, 1.0, @AsciiFontEdge#Edge, "LIFE BONUS: " ~ (player.hp * 1000).ToStrF("4d"))
+      do resource.DrawAscii((1600.0 - 14.0 * 32.0 * 2.0) / 2.0, 300.0, 2.0, @AsciiFontEdge#Edge, "STAGE " ~ @stage.ToStrF("2d") ~ " CLEAR")
+      do resource.DrawAscii((1600.0 - 512.0) / 2.0, 600.0, 1.0, @AsciiFontEdge#Edge, "LIFE BONUS: " ~ (player.hp * 1000).ToStrF("4d"))
     end if
 
     if (player.hp <= 0)
