@@ -527,55 +527,58 @@ func Game(resource : @Resource, status : @Status) : @Result
 
   do BGM@PlayFade("syakuhachi.ogg", 0.0, 0.0, 30)
 
+  var stageClearEffectCount : int :: 0
   while mainLoop()
     do perf.Init()
 
-    do Player@Action(resource, player, playerShotList)
-    do playerShotList.Action(resource)
-    do playerShotList.Collision(enemyShotList.shotList, ShotCollision)
-    do playerShotList.Collision(enemyList.enemyList, EnemyCollision)
+    if (stageClearEffectCount = 0)
+      do Player@Action(resource, player, playerShotList)
+      do playerShotList.Action(resource)
+      do playerShotList.Collision(enemyShotList.shotList, ShotCollision)
+      do playerShotList.Collision(enemyList.enemyList, EnemyCollision)
 
-    do perf.Set(perfColPlayerAct)
+      do perf.Set(perfColPlayerAct)
 
-    do enemyList.Action(resource, player, enemyShotList)
-    do enemyShotList.Action(resource)
-    if (!player.IsInvincible())
-      do playerList.Collision(enemyShotList.shotList, PlayerHitEnemyShot)
-      do playerList.Collision(enemyList.enemyList, PlayerHitEnemy)
-    end if
-
-    var cameraTarget : @Position :: ##player.position
-    do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
-    do cameraTarget.y :+ cameraTargetDistanceY
-    do camera.SetTarget(cameraTarget)
-    do camera.Update()
-
-    var maxActiveEnemy : int :: @stage < 13 ?(7 + @stage, 20)
-    var capacity : int :: @restEnemy - enemyList.Len() > maxActiveEnemy ?(maxActiveEnemy, @restEnemy - enemyList.Len())
-    if (@restEnemy - enemyList.Len() > 0 & enemyCounter <= 0)
-      do enemyCounter :: 10 * 60
-      var minAddition : int :: @restEnemy < 2 ?(@restEnemy, 2)
-      if (minAddition > capacity)
-        do minAddition :: capacity
+      do enemyList.Action(resource, player, enemyShotList)
+      do enemyShotList.Action(resource)
+      if (!player.IsInvincible())
+        do playerList.Collision(enemyShotList.shotList, PlayerHitEnemyShot)
+        do playerList.Collision(enemyList.enemyList, PlayerHitEnemy)
       end if
-      var maxAddition : int :: @restEnemy > 2 + @stage ?(2 + @stage, @restEnemy)
-      if (maxAddition > capacity)
-        do maxAddition :: capacity
-      end if
-      var additionCount : int :: Rnd@Get(minAddition, maxAddition)
-      for (1, additionCount)
-        var x : int :: Rnd@Get(1, Map@width - 1)
-        var y : int :: Rnd@Get(1, Map@height - 2)
-        while (Map@GetChip(x, y) <> '.' | Map@GetChip(x - 1, y) <> '.' | Map@GetChip(x + 1, y) <> '.')
-          do y :- 1
-        end while
-        do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
-      end for
-    elif (enemyCounter > 0)
-      do enemyCounter :- 1
-    end if
 
-    do perf.Set(perfColEnemyAct)
+      var cameraTarget : @Position :: ##player.position
+      do cameraTarget.x :+ cameraTargetDistanceX * player.direction.x
+      do cameraTarget.y :+ cameraTargetDistanceY
+      do camera.SetTarget(cameraTarget)
+      do camera.Update()
+
+      var maxActiveEnemy : int :: @stage < 13 ?(7 + @stage, 20)
+      var capacity : int :: @restEnemy - enemyList.Len() > maxActiveEnemy ?(maxActiveEnemy, @restEnemy - enemyList.Len())
+      if (@restEnemy - enemyList.Len() > 0 & enemyCounter <= 0)
+        do enemyCounter :: 10 * 60
+        var minAddition : int :: @restEnemy < 2 ?(@restEnemy, 2)
+        if (minAddition > capacity)
+          do minAddition :: capacity
+        end if
+        var maxAddition : int :: @restEnemy > 2 + @stage ?(2 + @stage, @restEnemy)
+        if (maxAddition > capacity)
+          do maxAddition :: capacity
+        end if
+        var additionCount : int :: Rnd@Get(minAddition, maxAddition)
+        for (1, additionCount)
+          var x : int :: Rnd@Get(1, Map@width - 1)
+          var y : int :: Rnd@Get(1, Map@height - 2)
+          while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y + 1) <> '.' | Map@GetChip(x, y - 1) <> '.')
+            do y :- 1
+          end while
+          do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
+        end for
+      elif (enemyCounter > 0)
+        do enemyCounter :- 1
+      end if
+
+      do perf.Set(perfColEnemyAct)
+    end if
 
     do background.DrawScale(0.0, 0.0, 1024.0, 512.0, 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
     do Map@DrawMap(camera.position)
@@ -597,8 +600,15 @@ func Game(resource : @Resource, status : @Status) : @Result
     do perf.Set(perfColOtherDraw)
     do perf.Draw(20.0, 820.0, 400.0, 40.0, resource)
 
-    if (@restEnemy <= 0)
-      return @Result#StageClear
+    if (@restEnemy <= 0 & enemyList.Len() <= 0)
+      do stageClearEffectCount :+ 1
+      if (stageClearEffectCount > 2 * 60)
+        do @score :+ player.ho * 1000
+        return @Result#StageClear
+      end if
+      do Draw@Rect(0.0, 0.0, 1600.0, 900.0, 0.0, 0.0, 0.0, stageClearEffectCount < 60 ?(stageClearEffectCount $ float / 60.0, 1.0))
+      do resource.DrawAscii(300.0, 300.0, 2.5, @AsciiFontEdge#Edge, "STAGE " ~ @stage.ToStr() ~ " CLEAR")
+      do resource.DrawAscii(600.0, 600.0, 1.0, @AsciiFontEdge#Edge, "LIFE BONUS: " ~ (player.hp * 1000).ToStrFi("4d"))
     end if
 
     if (player.hp <= 0)
