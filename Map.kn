@@ -12,26 +12,33 @@ const height : int :: 9 * 2
 var data : [][]char
 var tex : Draw@CTex
 
+{
+  . 空白
+  0 岩棚
+  1 岩
+  2 岩下
+  3 岩棚下
+}
 func InitMap()
   do @data :: #[@height][]char
   do @data[ 0] :: "................"~"................"
-  do @data[ 1] :: "................"~"...........XX..."
-  do @data[ 2] :: "XX.............."~"............XXX."
-  do @data[ 3] :: "..XXX..........."~"....XXXX........"
-  do @data[ 4] :: "................"~"..XX............"
-  do @data[ 5] :: ".......XX...XXXX"~"XX.......XXX...."
-  do @data[ 6] :: "......XXXX......"~"................"
-  do @data[ 7] :: "....XXX........."~"..............XX"
-  do @data[ 8] :: "XXXX.......XXXXX"~"XX.XXXXXX....XXX"
-  do @data[ 9] :: "..........XX...."~"....X..........X"
-  do @data[10] :: "..........X....."~"....X.....XX...X"
-  do @data[11] :: ".......XXXX....."~"....X.......XXXX"
-  do @data[12] :: ".XXX............"~"....X...X......X"
-  do @data[13] :: "XX.............."~"..XXX...X......X"
-  do @data[14] :: "X.....X.....XXXX"~"XX.....XXXXX...X"
-  do @data[15] :: "X.....XXXX......"~"...............X"
-  do @data[16] :: "XX...XXXXXX....."~"....XX........XX"
-  do @data[17] :: "XXXXXXXXXXXXXXXX"~"XXXXXXXXXXXXXXXX"
+  do @data[ 1] :: "................"~"...........30..."
+  do @data[ 2] :: "330............."~"............233."
+  do @data[ 3] :: "..233..........."~"....0333........"
+  do @data[ 4] :: "................"~"..032..........."
+  do @data[ 5] :: ".......00...3333"~"332......333...."
+  do @data[ 6] :: "......0223......"~"................"
+  do @data[ 7] :: "...0332........."~"..............00"
+  do @data[ 8] :: "3332.......00333"~"33.303333....321"
+  do @data[ 9] :: "..........022..."~"....1..........1"
+  do @data[10] :: "..........1....."~"....1.....30...1"
+  do @data[11] :: ".......3332....."~"....1......23301"
+  do @data[12] :: ".033............"~"....1...0.....21"
+  do @data[13] :: "02.............."~".0332...1......1"
+  do @data[14] :: "1.....00....3333"~"32.....32333...1"
+  do @data[15] :: "1.....1100......"~"...............1"
+  do @data[16] :: "10...011110....."~"....00........01"
+  do @data[17] :: "1100011111100000"~"0000110000000011"
   do @tex :: Draw@LoadTex("player.kntex")
 end func
 
@@ -55,13 +62,15 @@ func DrawMap(camera : Main@Position)
 
   for x(rangeL, rangeR)
     for y(rangeT, rangeB)
-      if (@data[y][x] = 'X')
+      var c : char :: @data[y][x]
+      if (c <> '.')
         var left : float :: (x $ float) * @blockW - camera.x
         var top : float :: (y $ float) * @blockH - camera.y
         if (@tex =& null)
           do Draw@Rect(left, top, @blockW, @blockH, 1.0, 1.0, 1.0, 1.0)
         else
-          do @tex.Draw(0.0, 0.0, @blockW, @blockH, left, top, 1.0, 1.0, 1.0, 1.0)
+          var id : int :: c $ int - '0' $ int
+          do @tex.Draw(id $ float * @blockW, 0.0, @blockW, @blockH, left, top, 1.0, 1.0, 1.0, 1.0)
         end if
       end if
     end for
@@ -138,7 +147,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
     var r : Main@RectInt :: @CalcRectInt(rect.left + actor.velocity.x, rect.top, rect.left, rect.bottom)
     for x(r.right, r.left, -1)
       for y(r.top, r.bottom)
-        if (@data[y][x] <> 'X')
+        if (@data[y][x] = '.')
           continue y
         end if
         if (@IsCollisionY(rect, y))
@@ -158,7 +167,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
     var r : Main@RectInt :: @CalcRectInt(rect.right, rect.top, rect.right + actor.velocity.x, rect.bottom)
     for x(r.left, r.right)
       for y(r.top, r.bottom)
-        if (@data[y][x] <> 'X')
+        if (@data[y][x] = '.')
           continue y
         end if
         if (@IsCollisionY(rect, y))
@@ -179,7 +188,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
     var r : Main@RectInt :: @CalcRectInt(rect.left, rect.top + actor.velocity.y, rect.right, rect.top)
     for y(r.bottom, r.top, -1)
       for x(r.left, r.right)
-        if (@data[y][x] <> 'X')
+        if (@data[y][x] = '.')
           continue x
         end if
         if (@IsCollisionX(rect, x))
@@ -199,7 +208,7 @@ func Collision(actor : Actor@Actor) : @CollisionResult
     var r : Main@RectInt :: @CalcRectInt(rect.left, rect.bottom, rect.right, rect.bottom + actor.velocity.y)
     for y(r.top, r.bottom)
       for x(r.left, r.right)
-        if (@data[y][x] <> 'X')
+        if (@data[y][x] = '.')
           continue x
         end if
         if (@IsCollisionX(rect, x))
