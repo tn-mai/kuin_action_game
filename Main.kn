@@ -537,7 +537,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   end for
 
   const enemyCount : int :: 600 { 敵発生間隔(フレーム数) }
-  var enemyCounter : int { 敵発生間隔カウンタ }
+  var enemyCounter : int :: enemyCount { 敵発生間隔カウンタ }
 
   do BGM@PlayFade("syakuhachi.ogg", 0.0, 0.0, 30)
 
