@@ -522,7 +522,7 @@ func Game(resource : @Resource, status : @Status) : @Result
   func AddEnemy(enemyList : Enemy@EnemyList)
     var x : int :: Rnd@Get(1, Map@width - 1)
     var y : int :: Rnd@Get(1, Map@height - 2)
-    while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y + 1) <> '.' | Map@GetChip(x, y - 1) <> '.')
+    while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y - 1) <> '.')
       if (y < 0)
         do Dbg@Log("WARNING: can't respawn(" ~ x.ToStr() ~ "," ~ y.ToStr() ~ ")")
         do x :: Rnd@Get(1, Map@width - 1)
@@ -530,11 +530,31 @@ func Game(resource : @Resource, status : @Status) : @Result
       end if
       do y :- 1
     end while
-    do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
+    do enemyList.Add(@MakePosition((x $ float + 0.5) * Map@blockW , (y $ float + 0.5) * Map@blockH))
   end func
+{
   for i(0, 5)
     do AddEnemy(enemyList)
   end for
+}
+  block
+  var x : int :: 21
+  var y : int :: 9
+    while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y - 1) <> '.')
+      do Dbg@Log("retry:" ~ x.ToStr() ~ ":" ~ y.ToStr())
+      if (y < 0)
+        do Dbg@Log("WARNING: can't respawn(" ~ x.ToStr() ~ "," ~ y.ToStr() ~ ")")
+        do x :: Rnd@Get(1, Map@width - 1)
+        do y :: Rnd@Get(1, Map@height- 2)
+      end if
+      do y :- 1
+    end while
+  do Dbg@Log("result:" ~ x.ToStr() ~ ":" ~ y.ToStr())
+  do enemyList.Add(@MakePosition((x $ float + 0.5) * Map@blockW, (y $ float + 0.5) * Map@blockH))
+  for i(0, 2)
+   do Dbg@Log(Map@GetChip(x-1, y+i).ToStr() ~ Map@GetChip(x, y+i).ToStr() ~ Map@GetChip(x+1, y+i).ToStr())
+  end for
+  end block
 
   const enemyCount : int :: 600 { 敵発生間隔(フレーム数) }
   var enemyCounter : int :: enemyCount { 敵発生間隔カウンタ }
