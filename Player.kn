@@ -106,9 +106,11 @@ func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   if (Input@Pad(0, Input@EBtn#C) = 1)
     var pos : Main@Position :: ##actor.position
     if (Input@Pad(0, Input@EBtn#Down) > 0)
-      do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.2
+      do pos.x :+ (actor.direction.x * 20.0)
+      do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.4
       do shotList.Add(pos, (#Main@Vector2).Vector2(0.0, 32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot, AnimationData@Action#ShotD $ int)
     elif (Input@Pad(0, Input@EBtn#Up) > 0)
+      do pos.x :+ (actor.direction.x * 20.0)
       do pos.y :- (actor.rect.bottom - actor.rect.top) * 0.9
       do shotList.Add(pos, (#Main@Vector2).Vector2(0.0, -32.0), CollisionGroup@categoryPlayerShot, CollisionGroup@maskPlayerShot, AnimationData@Action#ShotU $ int)
     else
