@@ -72,6 +72,14 @@ class ShotList()
   func Collision(rhs : Actor@List, f : func<(Actor@Actor, Actor@Actor) : Actor@List#DeletionRequest>)
     do this.shotList.Collision(rhs, f)
   end func
+
+  { 全消去 }
+  func Clear()
+    do this.shotList.Head()
+    while (!this.shotList.ChkEnd())
+      do this.shotList.Del()
+    end while
+  end func
 end class
 
 { 弾リストを作成する }

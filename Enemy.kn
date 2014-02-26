@@ -152,6 +152,14 @@ class EnemyList()
       do this.enemyList.Next()
     end while
   end func
+
+  { 全消去 }
+  func Clear()
+    do this.enemyList.Head()
+    while (!this.enemyList.ChkEnd())
+      do this.enemyList.Del()
+    end while
+  end func
 end class
 
 func Create() : @EnemyList
