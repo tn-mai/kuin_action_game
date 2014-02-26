@@ -3,6 +3,11 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.3.2
+* Implement level clear scene.
+* Implement updating level difficulty.
+![ver.0.3.2](ScreenShot/gameplay_v0_3_2.jpg)
+
 #version 0.3.1
 * Add Map chip.
 ![ver.0.3.1](ScreenShot/gameplay_v0_3_1.png)
