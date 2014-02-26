@@ -60,7 +60,7 @@ end func
 { 操作 }
 func Action(resource : Main@Resource, actor : @Player, shotList : Shot@ShotList)
   { 左右移動 }
-  const runVelocity : float :: 6.0
+  const runVelocity : float :: 2.0
   const maxRunVelocity : float :: 16.0
   var animationIndex : AnimationData@Action :: actor.animation.index $ AnimationData@Action
   var velocity : Main@Vector2 :: ##actor.velocity
