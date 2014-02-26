@@ -518,8 +518,22 @@ func Game(resource : @Resource, status : @Status) : @Result
   do camera.SetTarget(cameraTarget)
 
   do @restEnemy :: 10 + 3 * (@stage - 1)
+
+  func AddEnemy(enemyList : Enemy@EnemyList)
+    var x : int :: Rnd@Get(1, Map@width - 1)
+    var y : int :: Rnd@Get(1, Map@height - 2)
+    while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y + 1) <> '.' | Map@GetChip(x, y - 1) <> '.')
+      if (y < 0)
+        do Dbg@Log("WARNING: can't respawn(" ~ x.ToStr() ~ "," ~ y.ToStr() ~ ")")
+        do x :: Rnd@Get(1, Map@width - 1)
+        do y :: Rnd@Get(1, Map@height- 2)
+      end if
+      do y :- 1
+    end while
+    do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
+  end func
   for i(0, 5)
-    do enemyList.Add(@MakePosition(Rnd@Get(1, Map@width - 1) $ float * Map@blockW, Rnd@Get(1, Map@height - 1) $ float * Map@blockH))
+    do AddEnemy(enemyList)
   end for
 
   const enemyCount : int :: 600 { 敵発生間隔(フレーム数) }
@@ -566,12 +580,7 @@ func Game(resource : @Resource, status : @Status) : @Result
         end if
         var additionCount : int :: Rnd@Get(minAddition, maxAddition)
         for (1, additionCount)
-          var x : int :: Rnd@Get(1, Map@width - 1)
-          var y : int :: Rnd@Get(1, Map@height - 2)
-          while (Map@GetChip(x, y) <> '.' | Map@GetChip(x, y + 1) <> '.' | Map@GetChip(x, y - 1) <> '.')
-            do y :- 1
-          end while
-          do enemyList.Add(@MakePosition(x $ float * Map@blockW, y $ float * Map@blockH))
+          do AddEnemy(enemyList)
         end for
       elif (enemyCounter > 0)
         do enemyCounter :- 1
