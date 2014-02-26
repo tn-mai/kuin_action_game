@@ -101,19 +101,23 @@ class Animation()
     if (pic =& null)
       return
     end if
-    do x :+ pic.x
-    do y :+ pic.y
+    var dx : float :: x + pic.x
+    var dy : float :: y + pic.y
     var sw : float :: pic.right - pic.left
     var sh : float :: pic.bottom - pic.top
     var dw : float :: sw
     var dh : float :: sh
     if (pic.flags.And(@Flag#FlipH $ byte16) $ int > 0)
-      do x :+ sw
+      do dx :+ sw
       do dw :* -1.0
     end if
     var cx : float :: -pic.x
     var cy : float :: -pic.y
-    do this.tex.DrawRot(pic.left, pic.top, sw, sh, x, y, dw, dh, cx, cy, pic.rad, 1.0, 1.0, 1.0, 1.0)
+    do this.tex.DrawRot(pic.left, pic.top, sw, sh, dx, dy, dw, dh, cx, cy, pic.rad, 1.0, 1.0, 1.0, 1.0)
+    ifdef (dbg)
+      do Draw@Rect(x - 20.0, y - 1.0, 40.0, 2.0, 0.3, 0.5, 1.0, 0.8)
+      do Draw@Rect(x - 1.0, y - 20.0, 2.0, 40.0, 0.3, 0.5, 1.0, 0.8)
+    end ifdef
   end func
 end class
 
