@@ -10,6 +10,7 @@ const shotSpeed : float :: 16.0
 const shotIntervalMin : int :: 20
 const shotIntervalMax : int :: 100
 const shotRange : float :: 800.0
+const chasingRange : float :: 400.0
 
 { Enemy#Update()の結果 }
 -enum Result
@@ -24,16 +25,30 @@ end func
 
 { 敵クラス }
 class Enemy(Actor@Actor)
+  { 動作状態 }
   enum State
     Entry
     Active
     Dead
   end enum
 
+  { 行動パターン }
+  enum Character
+    Aggressive { プレイヤーを追う. }
+    Stay       { 動かない. }
+    Cowardly   { プレイヤーから逃げる. }
+  end enum
+
+  var isLanding : bool
   var shotInterval : int
+  var character : Character
   var state : State
   var stateCount : int
   var animation : AnimationData@Animation
+
+  -+func Ctor()
+    do this.character :: Character#Aggressive
+  end func
 
   { 状態: 出現 }
   -func StateEntry(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
@@ -44,11 +59,12 @@ class Enemy(Actor@Actor)
     end if
   end func
 
- { 状態: 動作中 }
+  { 状態: 動作中 }
   -func StateActive(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
     var animationIndex : int :: this.animation.index
     if (this.shotInterval > 0)
       do this.shotInterval :- 1
+      return this.StateMove(resource, player, shotList)
     else
       var distanceX : float :: player.position.x - this.position.x
       var distanceY : float :: player.position.y - this.position.y
@@ -79,7 +95,42 @@ class Enemy(Actor@Actor)
     return @Result#Keep
   end func
 
- { 状態: 死亡 }
+  { 状態: 移動 }
+  -func StateMove(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
+    var animationIndex : int :: this.animation.index
+    switch (this.character)
+    case (Character#Aggressive)
+      var distance : Main@Vector2 :: player.position.Sub(this.position)
+      if (Lib@Hypot(distance.x, distance.y) < @chasingRange)
+        do this.direction.Set(1.0, 0.0)
+        do animationIndex :: AnimationData@Action#EnemyR $ int
+        var direction : float :: Lib@InvRot(distance.x, distance.y)
+        if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
+          do this.velocity.x :+ 6.0
+          if (this.velocity.x >= 16.0)
+            do this.velocity.x :: 16.0
+          end if
+        elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
+          do this.direction.Set(-1.0, 0.0)
+        do animationIndex :: AnimationData@Action#EnemyL $ int
+          do this.velocity.x :- 6.0
+          if (this.velocity.x <= -16.0)
+            do this.velocity.x :: -16.0
+          end if
+        end if
+      end if
+    default
+      { 何もしない }
+    end switch
+    if (animationIndex <> this.animation.index)
+      do this.animation.Set(animationIndex)
+    else
+      do this.animation.Update()
+    end if
+    return @Result#Keep
+  end func
+
+  { 状態: 死亡 }
   -func StateDead(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
    do this.stateCount :- 1
    if (this.stateCount < 0)
@@ -89,16 +140,31 @@ class Enemy(Actor@Actor)
   end func
 
   func Update(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
-      do this.velocity.y  :+ Main@gravity
-      var result : Map@CollisionResult :: Map@Collision(this)
-      switch (this.state)
-      case (@Enemy#State#Entry)
-        return this.StateEntry(resource, player, shotList)
-      case (@Enemy#State#Active)
-        return this.StateActive(resource, player, shotList)
-      case (@Enemy#State#Dead)
-        return this.StateDead(resource, player, shotList)
-      end switch
+    if (this.isLanding)
+      const friction : float :: 4.0
+      if (this.velocity.x.Abs() <= friction)
+        do this.velocity.x :: 0.0
+      else
+        if (this.velocity.x < 0.0)
+          do this.velocity.x :+ friction
+        else
+          do this.velocity.x :- friction
+        end if
+      end if
+    end if
+    do this.velocity.y  :+ Main@gravity
+
+    var result : Map@CollisionResult :: Map@Collision(this)
+    do this.isLanding :: result.isHitY
+
+    switch (this.state)
+    case (@Enemy#State#Entry)
+      return this.StateEntry(resource, player, shotList)
+    case (@Enemy#State#Active)
+      return this.StateActive(resource, player, shotList)
+    case (@Enemy#State#Dead)
+      return this.StateDead(resource, player, shotList)
+    end switch
   end func
 
   func Damaged()
