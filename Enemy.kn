@@ -9,8 +9,8 @@ const shotSpeed : float :: 16.0
 
 const shotIntervalMin : int :: 20
 const shotIntervalMax : int :: 100
-const shotRange : float :: 800.0
-const chasingRange : float :: 400.0
+const shotRange : float :: 700.0
+const chasingRange : float :: 600.0
 
 { Enemy#Update()の結果 }
 -enum Result
@@ -100,22 +100,39 @@ class Enemy(Actor@Actor)
     var animationIndex : int :: this.animation.index
     switch (this.character)
     case (Character#Aggressive)
-      var distance : Main@Vector2 :: player.position.Sub(this.position)
-      if (Lib@Hypot(distance.x, distance.y) < @chasingRange)
-        do this.direction.Set(1.0, 0.0)
-        do animationIndex :: AnimationData@Action#EnemyR $ int
-        var direction : float :: Lib@InvRot(distance.x, distance.y)
+      var distance2 : Main@Vector2 :: player.position.Sub(this.position)
+      var distance : float :: Lib@Hypot(distance2.x, distance2.y)
+      var direction : float :: Lib@InvRot(distance2.x, distance2.y)
+      if (distance < @chasingRange * 0.6)
         if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
-          do this.velocity.x :+ 6.0
-          if (this.velocity.x >= 16.0)
-            do this.velocity.x :: 16.0
+          do this.direction.Set(1.0, 0.0)
+          do animationIndex :: AnimationData@Action#EnemyR $ int
+          do this.velocity.x :- 5.0
+          if (this.velocity.x <= -12.0)
+            do this.velocity.x :: -12.0
           end if
         elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
           do this.direction.Set(-1.0, 0.0)
-        do animationIndex :: AnimationData@Action#EnemyL $ int
+          do animationIndex :: AnimationData@Action#EnemyL $ int
+          do this.velocity.x :+ 5.0
+          if (this.velocity.x >= 12.0)
+            do this.velocity.x :: 12.0
+          end if
+        end if
+      elif (distance < @chasingRange)
+        if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
+          do this.direction.Set(1.0, 0.0)
+          do animationIndex :: AnimationData@Action#EnemyR $ int
+          do this.velocity.x :+ 6.0
+          if (this.velocity.x >= 10.0)
+            do this.velocity.x :: 10.0
+          end if
+        elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
+          do this.direction.Set(-1.0, 0.0)
+          do animationIndex :: AnimationData@Action#EnemyL $ int
           do this.velocity.x :- 6.0
-          if (this.velocity.x <= -16.0)
-            do this.velocity.x :: -16.0
+          if (this.velocity.x <= -10.0)
+            do this.velocity.x :: -10.0
           end if
         end if
       end if
