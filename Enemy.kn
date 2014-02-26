@@ -149,11 +149,11 @@ class Enemy(Actor@Actor)
 
   { 状態: 死亡 }
   -func StateDead(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
-   do this.stateCount :- 1
-   if (this.stateCount < 0)
-     return @Result#Remove
-   end if
-   return @Result#Keep
+    do this.stateCount :- 1
+    if (this.stateCount < 0)
+      return @Result#Remove
+    end if
+    return @Result#Keep
   end func
 
   func Update(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
@@ -190,7 +190,7 @@ class Enemy(Actor@Actor)
       do this.state :: State#Dead
       do this.stateCount :: 60
       do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
-      do this.velocity.x :: this.direction.x * -1.0
+      do this.velocity.x  :+ this.direction.x * -30.0
       do SE@Play(Main@SEID#Dead $ int)
     end if
   end func
@@ -226,6 +226,11 @@ class EnemyList()
     do enemy.shotInterval :: @shotIntervalMax
     do enemy.state :: @Enemy#State#Entry
     do enemy.stateCount :: 30
+    if (Main@stage < 3)
+      do enemy.character :: @Enemy#Character#Stay
+    else
+      do enemy.character :: Rnd@Get(0, Main@stage) >= 3 ?(@Enemy#Character#Aggressive, @Enemy#Character#Stay)
+    end if
     do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, AnimationData@Action#EnemyL $ int)
     do enemy.direction.Set(-1.0, 0.0)
     do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
