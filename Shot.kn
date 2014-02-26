@@ -61,8 +61,8 @@ class ShotList()
     do this.shotList.Head()
     while (!this.shotList.ChkEnd())
       var shot : @Shot :: this.shotList.Get() $ @Shot
-      var x : float :: shot.position.x - 16.0 - camera.x
-      var y : float :: shot.position.y - 8.0 - camera.y
+      var x : float :: shot.position.x - camera.x
+      var y : float :: shot.position.y - camera.y
       do shot.animation.Draw(x, y)
       do this.shotList.Next()
     end while
