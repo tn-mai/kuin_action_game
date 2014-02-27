@@ -214,17 +214,23 @@ class Enemy(Actor@Actor)
     end if
     do this.velocity.y  :+ Main@gravity
 
-    var result : Map@CollisionResult :: Map@Collision(this)
-    do this.isLanding :: result.isHitY
+    var colResult : Map@CollisionResult :: Map@Collision(this)
+    do this.isLanding :: colResult.isHitY
 
+    var result : @Result :: @Result#Keep
     switch (this.state)
     case (@Enemy#State#Entry)
-      return this.StateEntry(resource, player, shotList)
+      do result :: this.StateEntry(resource, player, shotList)
     case (@Enemy#State#Active)
-      return this.StateActive(resource, player, shotList)
+      do result :: this.StateActive(resource, player, shotList)
     case (@Enemy#State#Dead)
-      return this.StateDead(resource, player, shotList)
+      do result :: this.StateDead(resource, player, shotList)
     end switch
+
+    const leftLimit : float :: @width / 2.0
+    const rightLimit : float :: Map@width $ float * Map@blockW - @width / 2.0
+    do Player@Correct(&this.position.x, leftLimit, rightLimit)
+    return result
   end func
 
   func Damaged()
