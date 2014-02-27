@@ -197,6 +197,16 @@ func MakeRectInt(left : int, top : int, right : int, bottom : int) : @RectInt
   return rect
 end func
 
+{ 符号取得 }
+func Sign( n : float) : float
+  if (n > 0.0)
+    return 1.0
+  elif (n < 0.0)
+    return -1.0
+  end if
+  return 0.0
+end func
+
 {
   ゲーム結果
 }

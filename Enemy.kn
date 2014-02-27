@@ -145,9 +145,18 @@ class Enemy(Actor@Actor)
             do this.velocityMax :: 8.0
             break character
           end if
+        elif (this.isLanding)
+          var x : int :: ((this.position.x + Main@Sign(this.direction.x) * 128.0) / Map@blockW) $ int
+          var y : int :: ((this.position.y - 80.0) / Map@blockH) $ int
+          if (Map@GetChip(x, y) <> '.')
+            var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
+            do this.velocity.y :: jumpPower
+            do this.velocityAddition :: Main@Sign(this.direction.x) * 5.0
+            do this.velocityMax :: Main@Sign(this.direction.x) * 10.0
+          end if
         end if
       elif (distance < @chasingRange)
-        if (Rnd@Get(0, 9) < 3)
+        if (Rnd@Get(0, 9) < 7)
           if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
             do this.direction.Set(1.0, 0.0)
             do animationIndex :: @Animation#WalkR $ int
@@ -160,6 +169,15 @@ class Enemy(Actor@Actor)
             do this.velocityAddition :: -5.0
             do this.velocityMax :: -9.0
             break character
+          end if
+        elif (this.isLanding)
+          var x : int :: ((this.position.x + Main@Sign(this.direction.x) * 128.0) / Map@blockW) $ int
+          var y : int :: ((this.position.y - 80.0) / Map@blockH) $ int
+          if (Map@GetChip(x, y) <> '.')
+            var jumpPower : float :: -15.0 * Lib@Sqrt(2.0 * Main@gravity)
+            do this.velocity.y :: jumpPower
+            do this.velocityAddition :: Main@Sign(this.direction.x) * 5.0
+            do this.velocityMax :: Main@Sign(this.direction.x) * 10.0
           end if
         end if
       end if
