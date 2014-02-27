@@ -67,6 +67,7 @@ class Animation()
 
   func Set(index : int)
     if (index < 0 | index >= this.data.patternOffset.Len())
+      do Dbg@Log("WARNING in Set(): animation offset violation." ~ index.ToStr())
       return
     end if
     do this.pictureList :: this.data.pictureList.Sub(this.data.patternOffset[index], this.data.patternSize[index])
@@ -77,7 +78,7 @@ class Animation()
 
   func Update()
     if (this.offset >= this.pictureList.Len())
-      do Dbg@Log("WARNING in Update(): animation offset violation.")
+      do Dbg@Log("WARNING in Update(): animation offset violation." ~ this.offset.ToStr())
       return
     end if
     do this.frames :+ 1
@@ -174,7 +175,36 @@ end enum
 
 func Load(path : []char) : @Data
   var data : @Data :: #@Data
-  do data.textureName :: "player.kntex"
+  if (path = "enemy.knanm")
+    do Dbg@Log("make enemy animation:" ~ path)
+    do data.textureName :: "enemy.kntex"
+    {                           0   1   2   3   4   5   6   7}
+    do data.patternOffset :: [  0,  1,  2,  6, 10, 11, 12, 13]int
+    do data.patternSize ::   [  1,  1,  4,  4,  1,  1,  1,  1]int
+    do data.pictureList :: #[14]@Picture
+    for i(0, 13)
+      do data.pictureList[i] :: #@Picture
+      do data.pictureList[i].SetRect(0.0, 0.0, 96.0, 160.0)
+      do data.pictureList[i].SetOffset(-48.0, -160.0)
+      do data.pictureList[i].rad :: 0.0
+      do data.pictureList[i].frames :: 8 $ byte16
+    end for
+    do data.pictureList[data.patternOffset[Enemy@Animation#StopL $ int]].flags :: @Flag#FlipH $ byte16
+    for i(0, 3)
+      var left : float :: i $ float * 96.0
+      do data.pictureList[data.patternOffset[Enemy@Animation#WalkL $ int] + i].SetRect(left, 0.0, left + 96.0, 160.0)
+      do data.pictureList[data.patternOffset[Enemy@Animation#WalkL $ int] + i].flags :: @Flag#FlipH $ byte16
+      do data.pictureList[data.patternOffset[Enemy@Animation#WalkR $ int] + i].SetRect(left, 0.0, left + 96.0, 160.0)
+    end for
+    do data.pictureList[data.patternOffset[Enemy@Animation#JumpL $ int]].flags :: @Flag#FlipH $ byte16
+    do data.pictureList[data.patternOffset[Enemy@Animation#HitL $ int]].SetRect(0.0, 160.0, 96.0, 320.0)
+    do data.pictureList[data.patternOffset[Enemy@Animation#HitL $ int]].flags :: @Flag#FlipH $ byte16
+    do data.pictureList[data.patternOffset[Enemy@Animation#HitR $ int]].SetRect(0.0, 160.0, 96.0, 320.0)
+    return data
+  else
+    do Dbg@Log("make player animation:" ~ path)
+    do data.textureName :: "player.kntex"
+  end if
   {                           0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16 }
   do data.patternOffset :: [  0,  1,  2,  6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]int
   do data.patternSize ::   [  1,  1,  4,  4,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2]int
