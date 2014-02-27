@@ -2,6 +2,8 @@
   Kuin game
 }
 
+const isInvinsible : bool :: false
+
 { 重力定数 }
 const gravity : float :: 9.8 * 10.0 / 60.0
 
@@ -451,6 +453,9 @@ func Game(resource : @Resource, status : @Status) : @Result
   end func
   { プレイヤーと敵弾が衝突した時の処理 }
   func PlayerHitEnemyShot(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
+    if (@isInvinsible)
+      return Actor@List#DeletionRequest#None
+    end if
     var player : Player@Player :: left $ Player@Player
     if (player.hp > 0)
       do player.hp :- 1
@@ -461,6 +466,9 @@ func Game(resource : @Resource, status : @Status) : @Result
   end func
   { プレイヤーと敵が衝突した時の処理 }
   func PlayerHitEnemy(left : Actor@Actor, right : Actor@Actor) : Actor@List#DeletionRequest
+    if (@isInvinsible)
+      return Actor@List#DeletionRequest#None
+    end if
     var player : Player@Player :: left $ Player@Player
     if (player.hp > 0)
       do player.hp :- 1
