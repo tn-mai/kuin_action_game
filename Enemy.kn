@@ -9,7 +9,7 @@ const shotSpeed : float :: 16.0
 
 const shotIntervalMin : int :: 30
 const shotIntervalArray : []char :: "01223334456"
-const shotRange : float :: 700.0
+const shotRange : float :: 600.0
 const chasingRange : float :: 600.0
 
 enum Animation
