@@ -75,9 +75,11 @@ class Enemy(Actor@Actor)
   { 状態: 動作中 }
   -func StateActive(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
     var animationIndex : int :: this.animation.index
-    if (this.shotInterval > 0)
+    if (!this.isLanding)
+      do animationIndex :: this.StateMove(resource, player, shotList)
+    elif (this.shotInterval > 0)
       do this.shotInterval :- 1
-      return this.StateMove(resource, player, shotList)
+      do animationIndex :: this.StateMove(resource, player, shotList)
     else
       var distanceX : float :: player.position.x - this.position.x
       var distanceY : float :: player.position.y - this.position.y
@@ -111,15 +113,14 @@ class Enemy(Actor@Actor)
   end func
 
   { 状態: 移動 }
-  -func StateMove(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
+  -func StateMove(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : int
     if (this.stateCount > 0)
       do this.stateCount :- 1
       do this.velocity.x :+ this.velocityAddition
       if ((this.velocityMax >= 0.0 & this.velocity.x > this.velocityMax) | (this.velocityMax < 0.0 & this.velocity.x < this.velocityMax))
         do this.velocity.x :: this.velocityMax
       end if
-      do this.animation.Update()
-      return @Result#Keep
+      return this.animation.index
     end if
     const countArray : []char :: "12223"
     do this.stateCount :: (countArray[Rnd@Get(0, countArray.Len() - 1)] $ int - '0' $ int) * 10
@@ -168,12 +169,7 @@ class Enemy(Actor@Actor)
     default
       { 何もしない }
     end switch
-    if (animationIndex <> this.animation.index)
-      do this.animation.Set(animationIndex)
-    else
-      do this.animation.Update()
-    end if
-    return @Result#Keep
+    return animationIndex
   end func
 
   { 状態: 死亡 }
