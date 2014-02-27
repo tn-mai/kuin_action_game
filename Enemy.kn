@@ -122,7 +122,7 @@ class Enemy(Actor@Actor)
       return @Result#Keep
     end if
     const countArray : []char :: "12223"
-    do this.stateCount :: (countArray[Rnd@Get(0, 4)] $ int - '0' $ int) * 10
+    do this.stateCount :: (countArray[Rnd@Get(0, countArray.Len() - 1)] $ int - '0' $ int) * 10
     var animationIndex : int :: this.animation.index
     switch character(this.character)
     case (Character#Aggressive)
