@@ -12,6 +12,17 @@ const shotIntervalArray : []char :: "01223334456"
 const shotRange : float :: 700.0
 const chasingRange : float :: 600.0
 
+enum Animation
+  StopL
+  StopR
+  WalkL
+  WalkR
+  JumpL
+  JumpR
+  HitL
+  HitR
+end enum
+
 { Enemy#Update()の結果 }
 -enum Result
   Keep   { 要素を維持. }
@@ -44,6 +55,8 @@ class Enemy(Actor@Actor)
   var character : Character
   var state : State
   var stateCount : int
+  var velocityAddition : float
+  var velocityMax : float
   var animation : AnimationData@Animation
 
   -+func Ctor()
@@ -75,12 +88,14 @@ class Enemy(Actor@Actor)
         do pos.y :- (this.rect.bottom - this.rect.top) * 0.75
         if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
           do this.direction.Set(1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyR $ int
+          do this.velocityAddition :: 0.0
+          do animationIndex :: @Animation#StopR $ int
           do shotList.Add(pos, (##this.direction).MulScalar(@shotSpeed), CollisionGroup@categoryEnemyShot, CollisionGroup@maskEnemyShot, AnimationData@Action#EnemyShot $ int)
           do SE@Play(Main@SEID#EnemyShot $ int)
         elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
           do this.direction.Set(-1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyL $ int
+          do this.velocityAddition :: 0.0
+          do animationIndex :: @Animation#StopL $ int
           do shotList.Add(pos, (##this.direction).MulScalar(@shotSpeed), CollisionGroup@categoryEnemyShot, CollisionGroup@maskEnemyShot, AnimationData@Action#EnemyShot $ int)
           do SE@Play(Main@SEID#EnemyShot $ int)
         end if
@@ -97,45 +112,59 @@ class Enemy(Actor@Actor)
 
   { 状態: 移動 }
   -func StateMove(resource : Main@Resource, player : Actor@Actor, shotList : Shot@ShotList) : @Result
+    if (this.stateCount > 0)
+      do this.stateCount :- 1
+      do this.velocity.x :+ this.velocityAddition
+      if ((this.velocityMax >= 0.0 & this.velocity.x > this.velocityMax) | (this.velocityMax < 0.0 & this.velocity.x < this.velocityMax))
+        do this.velocity.x :: this.velocityMax
+      end if
+      do this.animation.Update()
+      return @Result#Keep
+    end if
+    const countArray : []char :: "12223"
+    do this.stateCount :: (countArray[Rnd@Get(0, 4)] $ int - '0' $ int) * 10
     var animationIndex : int :: this.animation.index
-    switch (this.character)
+    switch character(this.character)
     case (Character#Aggressive)
       var distance2 : Main@Vector2 :: player.position.Sub(this.position)
       var distance : float :: Lib@Hypot(distance2.x, distance2.y)
       var direction : float :: Lib@InvRot(distance2.x, distance2.y)
       if (distance < @chasingRange * 0.6)
-        if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
-          do this.direction.Set(1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyR $ int
-          do this.velocity.x :- 5.0
-          if (this.velocity.x <= -12.0)
-            do this.velocity.x :: -12.0
-          end if
-        elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
-          do this.direction.Set(-1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyL $ int
-          do this.velocity.x :+ 5.0
-          if (this.velocity.x >= 12.0)
-            do this.velocity.x :: 12.0
+        if (Rnd@Get(0, 9) < 6)
+          if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
+            do this.direction.Set(1.0, 0.0)
+            do animationIndex :: @Animation#WalkR $ int
+            do this.velocityAddition :: -4.5
+            do this.velocityMax :: -8.0
+            break character
+          elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
+            do this.direction.Set(-1.0, 0.0)
+            do animationIndex :: @Animation#WalkL $ int
+            do this.velocityAddition :: 4.5
+            do this.velocityMax :: 8.0
+            break character
           end if
         end if
       elif (distance < @chasingRange)
-        if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
-          do this.direction.Set(1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyR $ int
-          do this.velocity.x :+ 6.0
-          if (this.velocity.x >= 10.0)
-            do this.velocity.x :: 10.0
-          end if
-        elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
-          do this.direction.Set(-1.0, 0.0)
-          do animationIndex :: AnimationData@Action#EnemyL $ int
-          do this.velocity.x :- 6.0
-          if (this.velocity.x <= -10.0)
-            do this.velocity.x :: -10.0
+        if (Rnd@Get(0, 9) < 3)
+          if (direction <= 0.25 * Lib@Pi | direction >= 1.75 * Lib@Pi)
+            do this.direction.Set(1.0, 0.0)
+            do animationIndex :: @Animation#WalkR $ int
+            do this.velocityAddition :: 5.0
+            do this.velocityMax :: 9.0
+            break character
+          elif (direction >= 0.75 * Lib@Pi & direction <= 1.25 * Lib@Pi)
+            do this.direction.Set(-1.0, 0.0)
+            do animationIndex :: @Animation#WalkL $ int
+            do this.velocityAddition :: -5.0
+            do this.velocityMax :: -9.0
+            break character
           end if
         end if
       end if
+      do this.velocityAddition :: 0.0
+      do this.velocityMax :: 0.0
+      do animationIndex :: (this.direction.x >= 0.0 ?(@Animation#StopR, @Animation#StopL)) $ int
     default
       { 何もしない }
     end switch
@@ -189,7 +218,7 @@ class Enemy(Actor@Actor)
       do this.collisionMask :: this.collisionMask.And(CollisionGroup@maskEnemy.Not())
       do this.state :: State#Dead
       do this.stateCount :: 60
-      do this.animation.Set((this.direction.x >= 0.0 ?(AnimationData@Action#EnemyHitR, AnimationData@Action#EnemyHitL)) $ int)
+      do this.animation.Set((this.direction.x >= 0.0 ?(@Animation#HitR, @Animation#HitL)) $ int)
       do this.velocity.x  :+ this.direction.x * -30.0
       do SE@Play(Main@SEID#Dead $ int)
     end if
@@ -231,7 +260,7 @@ class EnemyList()
     else
       do enemy.character :: Rnd@Get(0, Main@stage) >= 3 ?(@Enemy#Character#Aggressive, @Enemy#Character#Stay)
     end if
-    do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, AnimationData@Action#EnemyL $ int)
+    do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, @Animation#StopL $ int)
     do enemy.direction.Set(-1.0, 0.0)
     do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
     do enemy.category :: CollisionGroup@categoryEnemy
