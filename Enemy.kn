@@ -7,8 +7,8 @@ const height : float :: 160.0
 
 const shotSpeed : float :: 16.0
 
-const shotIntervalMin : int :: 20
-const shotIntervalMax : int :: 100
+const shotIntervalMin : int :: 30
+const shotIntervalArray : []char :: "01223334456"
 const shotRange : float :: 700.0
 const chasingRange : float :: 600.0
 
@@ -20,7 +20,7 @@ end enum
 
 { 次弾を投げる間隔を取得する }
 func GetShotInterval() : int
-  return Rnd@Get(@shotIntervalMin, @shotIntervalMax)
+  return @shotIntervalMin + (@shotIntervalArray[Rnd@Get(0, @shotIntervalArray.Len() - 1)] $ int - '0' $ int) * 20
 end func
 
 { 敵クラス }
@@ -223,7 +223,7 @@ class EnemyList()
     var enemy : @Enemy :: #@Enemy
     var rect : Main@Rect :: Main@MakeRect(-(@width * 0.8 / 2.0), -(@height * 0.9), @width * 0.8 / 2.0, 0.0)
     do (enemy $ Actor@Actor).Initialize(position, rect)
-    do enemy.shotInterval :: @shotIntervalMax
+    do enemy.shotInterval :: @GetShotInterval()
     do enemy.state :: @Enemy#State#Entry
     do enemy.stateCount :: 30
     if (Main@stage < 3)
