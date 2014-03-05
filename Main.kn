@@ -13,6 +13,14 @@ class ColorRGBA()
   var g : float
   var b : float
   var a : float
+
+  func ColorRGBA(r : float, g : float, b : float, a : float) : @ColorRGBA
+    do this.r :: r
+    do this.g :: g
+    do this.b :: b
+    do this.a :: a
+    return this
+  end func
 end class
 
 func MakeColorRGBA(r : float, g : float, b : float, a : float) : @ColorRGBA

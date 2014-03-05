@@ -61,6 +61,7 @@ class Enemy(Actor@Actor)
 
   -+func Ctor()
     do this.character :: Character#Aggressive
+    do this.color :: (#Main@ColorRGBA).ColorRGBA(1.0, 1.0, 1.0, 1.0)
   end func
 
   { 状態: 出現 }
@@ -282,7 +283,11 @@ class EnemyList()
     end if
     do enemy.animation :: AnimationData@MakeAnimation(this.animationData, this.texture, @Animation#StopL $ int)
     do enemy.direction.Set(-1.0, 0.0)
-    do Main@SetColorRGBA(&enemy.color, 0.0, 1.0, 0.0, 1.0)
+    if (enemy.character = @Enemy#Character#Aggressive)
+      do enemy.color :: (#Main@ColorRGBA).ColorRGBA(1.0, 0.5, 0.5, 1.0)
+    else
+      do enemy.color :: (#Main@ColorRGBA).ColorRGBA(1.0, 1.0, 1.0, 1.0)
+    end if
     do enemy.category :: CollisionGroup@categoryEnemy
     do enemy.collisionMask :: CollisionGroup@maskEnemy.And(CollisionGroup@categoryPlayer.Not())
     do this.enemyList.Add(enemy)
@@ -310,7 +315,7 @@ class EnemyList()
       if (enemy.state = @Enemy#State#Active | enemy.stateCount % 2 = 0)
         var x : float :: enemy.position.x - camera.x
         var y : float :: enemy.position.y - camera.y
-        do enemy.animation.Draw(x, y)
+        do enemy.animation.DrawColor(x, y, enemy.color)
       end if
       do this.enemyList.Next()
     end while
