@@ -92,6 +92,10 @@ class Animation()
   end func
 
   func Draw(x : float, y : float)
+    do this.DrawColor(x, y, (#Main@ColorRGBA).ColorRGBA(1.0, 1.0, 1.0, 1.0))
+  end func
+
+  func DrawColor(x : float, y : float, color : Main@ColorRGBA)
     if (this.data =& null | this.tex =& null)
       return
     end if
@@ -141,7 +145,7 @@ class Animation()
       do cy :+ (cy1 - cy) * ratio
       do rad :+ (pic1.rad - rad) * ratio
     end if
-    do this.tex.DrawRot(pic.left, pic.top, sw, sh, dx, dy, dw, dh, cx, cy, rad, 1.0, 1.0, 1.0, 1.0)
+    do this.tex.DrawRot(pic.left, pic.top, sw, sh, dx, dy, dw, dh, cx, cy, rad, color.r, color.g, color.b, color.a)
     ifdef (dbg)
       do Draw@Rect(x - 20.0, y - 1.0, 40.0, 2.0, 0.3, 0.5, 1.0, 0.8)
       do Draw@Rect(x - 1.0, y - 20.0, 2.0, 40.0, 0.3, 0.5, 1.0, 0.8)
