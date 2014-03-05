@@ -3,6 +3,12 @@ kuin_action_game
 
 side view action game using Kuin
 
+#version 0.3.3
+* Add Personality to the enemy.
+* Cook up the title.
+* Adjust player shot location.
+![ver.0.3.3](ScreenShot/gameplay_v0_3_3.jpg)
+
 #version 0.3.2
 * Implement level clear scene.
 * Implement updating level difficulty.
