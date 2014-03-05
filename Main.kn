@@ -387,8 +387,95 @@ end func
 func Title(resource : @Resource, status : @Status)
   do @WaitForKeyReleased()
   do BGM@PlayFade("bgm01.ogg", 0.0, 0.12, 30)
+  var state : int :: 0
+  var texBg : Draw@CTex
+  var texChar : Draw@CTex
+  var texLogo : Draw@CTex
+  var texSubTitle : Draw@CTex
+  var texFog : Draw@CTex
+  try
+    do texBg :: Draw@LoadTex("title_bg.kntex")
+    do Dbg@Log("texBg:" ~ (texBg <>& null).ToStr())
+    do texChar :: Draw@LoadTex("title_char.kntex")
+    do Dbg@Log("texChar:" ~ (texChar <>& null).ToStr())
+    do texFog :: Draw@LoadTex("title_fog.kntex")
+    do Dbg@Log("texFog:" ~ (texFog <>& null).ToStr())
+    do texLogo :: Draw@LoadTex("title_logo.kntex")
+    do Dbg@Log("texLogo:" ~ (texLogo <>& null).ToStr())
+    do texSubTitle :: Draw@LoadTex("title_subtitle.kntex")
+    do Dbg@Log("texSubTitle:" ~ (texSubTitle <>& null).ToStr())
+  catch()
+    do state :: -1
+    do Dbg@Log("WARNING: Can't load texture")
+  end try
+  var fadeCount : int :: 60
+  var offsetX : float :: 0.0
   while (Input@Pad(0, Input@EBtn#A) = 0)
-    do @DrawText(resource, "NINJA TITLE", 100, 0, 0)
+    switch (state)
+    case (0)
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do fadeCount :- 1
+      if (fadeCount <= 0)
+        do fadeCount :: 60
+        do state :: 1
+      end if
+    case (1)
+      do texBg.DrawScale(0.0, 0.0, texBg.Width(), texBg.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do fadeCount :- 1
+      if (fadeCount <= 0)
+        do fadeCount :: 60
+        do state :: 2
+      end if
+    case (2)
+      do texBg.DrawScale(0.0, 0.0, texBg.Width(), texBg.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texLogo.DrawScale(0.0, 0.0, texLogo.Width(), texLogo.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do fadeCount :- 1
+      if (fadeCount <= 0)
+        do fadeCount :: 60
+        do state :: 3
+      end if
+    case (3)
+      do texBg.DrawScale(0.0, 0.0, texBg.Width(), texBg.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texLogo.DrawScale(0.0, 0.0, texLogo.Width(), texLogo.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texSubTitle.DrawScale(0.0, 0.0, texSubTitle.Width(), texSubTitle.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do fadeCount :- 1
+      if (fadeCount <= 0)
+        do fadeCount :: 60
+        do state :: 4
+      end if
+    case (4)
+      do texBg.DrawScale(0.0, 0.0, texBg.Width(), texBg.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texFog.DrawScale(0.0, 0.0, texFog.Width(), texFog.Height(), offsetX, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do texFog.DrawScale(0.0, 0.0, texFog.Width(), texFog.Height(), offsetX - 1600.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0 - (fadeCount $ float / 60.0))
+      do texLogo.DrawScale(0.0, 0.0, texLogo.Width(), texLogo.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texSubTitle.DrawScale(0.0, 0.0, texSubTitle.Width(), texSubTitle.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do offsetX :+ 1.0
+      if (offsetX >= 1600.0)
+        do offsetX :- 1600.0
+      end if
+      do fadeCount :- 1
+      if (fadeCount <= 0)
+        do fadeCount :: 60
+        do state :: 5
+      end if
+    case (5)
+      do texBg.DrawScale(0.0, 0.0, texBg.Width(), texBg.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texChar.DrawScale(0.0, 0.0, texChar.Width(), texChar.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texFog.DrawScale(0.0, 0.0, texFog.Width(), texFog.Height(), offsetX, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texFog.DrawScale(0.0, 0.0, texFog.Width(), texFog.Height(), offsetX - 1600.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texLogo.DrawScale(0.0, 0.0, texLogo.Width(), texLogo.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do texSubTitle.DrawScale(0.0, 0.0, texSubTitle.Width(), texSubTitle.Height(), 0.0, 0.0, 1600.0, 900.0, 1.0, 1.0, 1.0, 1.0)
+      do offsetX :+ 1.0
+      if (offsetX >= 1600.0)
+        do offsetX :- 1600.0
+      end if
+    default
+      do @DrawText(resource, "NINJA TITLE", 100, 0, 0)
+    end switch
     do Kuin@Act()
   end while
 end func
